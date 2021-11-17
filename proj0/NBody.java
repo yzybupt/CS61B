@@ -1,5 +1,5 @@
 public class NBody{
-    public static String imageToDraw = "images/starfield.jpg";
+    private static String imageToDraw = "images/starfield.jpg";
 
     public static double readRadius(String file){
         In in = new In(file);
@@ -14,7 +14,7 @@ public class NBody{
 		double radius = in.readDouble();
         Planet [] p = new Planet[N];
         for(int i=0; i<N; i++){
-            p[i]= new Planet(in.readDouble(),in.readDouble(),in.readDouble(),in.readDouble(),in.readDouble(),"images/"+in.readString());
+            p[i]= new Planet(in.readDouble(),in.readDouble(),in.readDouble(),in.readDouble(),in.readDouble(),in.readString());
         }
         return p;
 
