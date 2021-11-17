@@ -10,7 +10,7 @@
  */
 
 public class StdDrawDemo {
-	public static String imageToDraw = "advice.png";
+	public static String imageToDraw = "./advice.png";
 
 	/* Draws three copies of the image in a rectangular pattern. */
 	public static void drawThree() {
