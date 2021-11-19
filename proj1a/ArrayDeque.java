@@ -7,13 +7,13 @@ public class ArrayDeque<T> {
     public ArrayDeque() {
         size = 0;
         items = (T[]) new Object[8];
-        nextEnd = 0;
-        nextFirst = 1;
+        nextEnd = 1;
+        nextFirst = 0;
     }
 
     private int correctIndex(int index) {
         if (index < 0) {
-            return (-index) % items.length;
+            return items.length + index;
         } else if (index > items.length - 1) {
             return index % items.length;
         } else {
@@ -34,7 +34,7 @@ public class ArrayDeque<T> {
     }
 
     private void resize2() {
-        T[] p = (T[]) new Object[(int) (items.length * 0.5)];
+        T[] p = (T[]) new Object[(int) (items.length * 0.5 + 1)];
         int j = correctIndex(nextFirst + 1);
         for (int i = 0; i < size; i++) {
             p[i] = items[j];
@@ -46,7 +46,7 @@ public class ArrayDeque<T> {
     }
 
     public void addFirst(T argument) {
-        if (size >= items.length) {
+        if (size >= items.length || nextFirst == nextEnd) {
             resize();
         }
         items[nextFirst] = argument;
@@ -55,7 +55,7 @@ public class ArrayDeque<T> {
     }
 
     public void addLast(T argument) {
-        if (size >= items.length) {
+        if (size >= items.length || nextFirst == nextEnd) {
             resize();
         }
         items[nextEnd] = argument;
@@ -84,8 +84,8 @@ public class ArrayDeque<T> {
         if (size == 0) {
             return null;
         } else {
-            T p = items[correctIndex(nextFirst + 1)];
-            nextFirst = correctIndex(nextFirst + 1);
+            T p = items[correctIndex(nextEnd - 1)];
+            nextEnd = correctIndex(nextEnd - 1);
             size--;
             if (items.length >= 16 && size / items.length < 0.30) {
                 resize2();
@@ -98,8 +98,8 @@ public class ArrayDeque<T> {
         if (size == 0) {
             return null;
         } else {
-            T p = items[correctIndex(nextEnd - 1)];
-            nextEnd = correctIndex(nextEnd - 1);
+            T p = items[correctIndex(nextFirst + 1)];
+            nextFirst = correctIndex(nextFirst + 1);
             size--;
             if (items.length >= 16 && size / items.length < 0.30) {
                 resize2();
