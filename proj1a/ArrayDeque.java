@@ -1,14 +1,14 @@
 public class ArrayDeque<T> {
     private int size;
-    private int nextFirst;
-    private int nextEnd;
+    private int head;
+    private int tail;
     private T[] items;
 
     public ArrayDeque() {
         size = 0;
         items = (T[]) new Object[8];
-        nextEnd = 1;
-        nextFirst = 0;
+        tail = 0;
+        head = 0;
     }
 
     private int correctIndex(int index) {
@@ -23,48 +23,60 @@ public class ArrayDeque<T> {
 
     private void resize() {
         T[] p = (T[]) new Object[items.length + 8];
-        int j = correctIndex(nextFirst + 1);
-        for (int i = 0; i < size; i++) {
+        int j = correctIndex(head);
+        for (int i = size-1; i >= 0; i--) {
             p[i] = items[j];
-            j = correctIndex(j + 1);
+            j = correctIndex(j - 1);
         }
         items = p;
-        nextFirst = items.length - 1;
-        nextEnd = size;
+        head = size - 1;
+        tail = items.length-1;
     }
 
     private void resize2() {
-        T[] p = (T[]) new Object[(int) (items.length * 0.5 + 1)];
-        int j = correctIndex(nextFirst + 1);
+        /**T[] p = (T[]) new Object[(int) (items.length * 0.5 + 1)];
+        int j = correctIndex(head + 1);
         for (int i = 0; i < size; i++) {
             p[i] = items[j];
             j = correctIndex(j + 1);
         }
         items = p;
-        nextFirst = items.length - 1;
-        nextEnd = size;
+        head = items.length - 1;
+        tail = size;
+         */
     }
 
     public void addFirst(T argument) {
-        if (size >= items.length || nextFirst == nextEnd) {
+        if (size >= items.length) {
             resize();
         }
-        items[nextFirst] = argument;
-        nextFirst = correctIndex(nextFirst - 1);
+        if (size == 0){
+            items[head] = argument;
+            tail = correctIndex(tail--);
+        } else {
+            items[correctIndex(head + 1)] = argument;
+            head = correctIndex(head + 1);
+        }
         size++;
     }
 
     public void addLast(T argument) {
-        if (size >= items.length || nextFirst == nextEnd) {
+        if (size >= items.length) {
             resize();
         }
-        items[nextEnd] = argument;
-        nextEnd = correctIndex(nextEnd + 1);
-        size++;
-
+        if (size == 0) {
+            items[head] = argument;
+            tail = correctIndex(tail - 1);
+            size++;
+        } else {
+            items[tail] = argument;
+            tail = correctIndex(tail - 1);
+            size++;
+        }
     }
 
-    public boolean isEmpty() {
+
+    public boolean isEmpty(){
         return size == 0;
     }
 
@@ -73,10 +85,10 @@ public class ArrayDeque<T> {
     }
 
     public void printDeque() {
-        int j = correctIndex(nextFirst + 1);
+        int j = correctIndex(head);
         for (int i = 0; i < size; i++) {
             System.out.print(items[j] + " ");
-            j = correctIndex(j + 1);
+            j = correctIndex(j - 1);
         }
     }
 
@@ -84,8 +96,8 @@ public class ArrayDeque<T> {
         if (size == 0) {
             return null;
         } else {
-            T p = items[correctIndex(nextEnd - 1)];
-            nextEnd = correctIndex(nextEnd - 1);
+            T p = items[correctIndex(head)];
+            head = correctIndex(head - 1);
             size--;
             if (items.length >= 16 && size / items.length < 0.30) {
                 resize2();
@@ -98,8 +110,8 @@ public class ArrayDeque<T> {
         if (size == 0) {
             return null;
         } else {
-            T p = items[correctIndex(nextFirst + 1)];
-            nextFirst = correctIndex(nextFirst + 1);
+            T p = items[correctIndex(tail + 1)];
+            tail = correctIndex(tail);
             size--;
             if (items.length >= 16 && size / items.length < 0.30) {
                 resize2();
@@ -112,7 +124,7 @@ public class ArrayDeque<T> {
         if (index < 0 || index > size - 1) {
             return null;
         } else {
-            int j = correctIndex(nextFirst + 1);
+            int j = correctIndex(head + 1);
             for (int i = 0; i < index; i++) {
                 j = correctIndex(j + 1);
             }
