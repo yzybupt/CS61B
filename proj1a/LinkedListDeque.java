@@ -1,21 +1,21 @@
-public class LinkedListDeque<Item> {
-    public class ItemNode<Item> {
-        ItemNode first;
-        ItemNode next;
-        Item value;
-        public ItemNode(Item a) {
+public class LinkedListDeque<T> {
+    public class Node<T> {
+        Node first;
+        Node next;
+        T value;
+        public Node(T a) {
             value = a;
             first = null;
             next = null;
         }
     }
-    ItemNode front;
-    ItemNode end;
+    Node front;
+    Node end;
     int size;
 
     public LinkedListDeque() {
-        front = new ItemNode(0);
-        end = new ItemNode(0);
+        front = new Node(0);
+        end = new Node(0);
 
         front.next = end;
         end.first = front;
@@ -23,9 +23,9 @@ public class LinkedListDeque<Item> {
 
     }
 
-    public void addFirst(Item T) {
-        ItemNode p = new ItemNode(T);
-        ItemNode temp = front.next;
+    public void addFirst(T argument) {
+        Node p = new Node(argument);
+        Node temp = front.next;
         p.next = temp;
         p.first = front;
         temp.first = p;
@@ -33,9 +33,9 @@ public class LinkedListDeque<Item> {
         size++;
     }
 
-    public void addLast(Item T) {
-        ItemNode p = new ItemNode(T);
-        ItemNode temp = end.first;
+    public void addLast(T argument) {
+        Node p = new Node(argument);
+        Node temp = end.first;
         p.next = end;
         p.first = temp;
         end.first = p;
@@ -55,7 +55,7 @@ public class LinkedListDeque<Item> {
         if (size == 0) {
             return;
         } else {
-            ItemNode p = front;
+            Node p = front;
             for (int i = 0; i < size; i++) {
                 System.out.print(p.value + " ");
                 p = p.next;
@@ -64,25 +64,25 @@ public class LinkedListDeque<Item> {
 
     }
 
-    public Item removeFirst() {
-        if (size == 0 || front == null) {
+    public T removeFirst() {
+        if(size == 0 || front == null) {
             return null;
         } else {
-            Item p = (Item) front.next.value;
-            ItemNode temp = front.next.next;
+            T p = (T) front.next.value;
+            Node temp = front.next.next;
             front.next = temp;
-            temp.first = front;
+            temp.first= front;
             size--;
             return p;
         }
     }
 
-    public Item removeLast() {
+    public T removeLast() {
         if (size == 0 || end == null) {
             return null;
         } else {
-            Item p = (Item) end.first.value;
-            ItemNode temp = end.first.first;
+            T p = (T) end.first.value;
+            Node temp = end.first.first;
             end.first = temp;
             temp.next = end;
             size--;
@@ -90,30 +90,30 @@ public class LinkedListDeque<Item> {
         }
     }
 
-    public Item get(int index) {
-        if (size == 0) {
+    public T get(int index) {
+        if(size == 0) {
             return null;
         } else if (index < 0 || index >= size) {
             return null;
         } else {
-            ItemNode p  = front.next;
+            Node p  = front.next;
             for (int i = 0; i < index; i++) {
                 p = p.next;
             }
-            return (Item) p.value;
+            return (T) p.value;
         }
     }
 
-    private Item getRecursive1(int index, ItemNode p) {
+    private T getRecursive1(int index, Node p) {
         if (index == 0) {
-            return (Item) p.value;
+            return (T) p.value;
         } else {
-            return (Item) getRecursive1(index - 1, p.next);
+            return (T) getRecursive1(index - 1, p.next);
         }
 
     }
 
-    public Item getRecursive(int index) {
+    public T getRecursive(int index) {
         if (size == 0) {
             return null;
         } else if (index < 0 || index >= size) {

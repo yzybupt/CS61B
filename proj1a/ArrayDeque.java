@@ -1,12 +1,12 @@
-public class ArrayDeque<Item> {
+public class ArrayDeque<T> {
     int size;
     int nextFirst;
     int nextEnd;
-    Item[] items;
+    T[] items;
 
     public ArrayDeque() {
         size = 0;
-        items = (Item[]) new Object[8];
+        items = (T[]) new Object[8];
         nextEnd = 0;
         nextFirst = 1;
     }
@@ -22,7 +22,7 @@ public class ArrayDeque<Item> {
     }
 
     private void resize() {
-        Item[] p = (Item[]) new Object[items.length + 8];
+        T[] p = (T[]) new Object[items.length + 8];
         int j = correctIndex(nextFirst + 1);
         for (int i = 0; i < size; i++) {
             p[i] = items[j];
@@ -34,7 +34,7 @@ public class ArrayDeque<Item> {
     }
 
     private void resize2() {
-        Item[] p = (Item[]) new Object[(int) (items.length * 0.5)];
+        T[] p = (T[]) new Object[(int) (items.length * 0.5)];
         int j = correctIndex(nextFirst + 1);
         for (int i = 0; i < size; i++) {
             p[i] = items[j];
@@ -45,20 +45,20 @@ public class ArrayDeque<Item> {
         nextEnd = size;
     }
 
-    public void addFirst(Item T) {
+    public void addFirst(T argument) {
         if (size >= items.length) {
             resize();
         }
-        items[nextFirst] = T;
+        items[nextFirst] = argument;
         nextFirst = correctIndex(nextFirst - 1);
         size++;
     }
 
-    public void addLast(Item T) {
+    public void addLast(T argument) {
         if (size >= items.length) {
             resize();
         }
-        items[nextEnd] = T;
+        items[nextEnd] = argument;
         nextEnd = correctIndex(nextEnd + 1);
         size++;
 
@@ -80,11 +80,11 @@ public class ArrayDeque<Item> {
         }
     }
 
-    public Item removeFirst() {
+    public T removeFirst() {
         if (size == 0) {
             return null;
         } else {
-            Item p = items[correctIndex(nextFirst + 1)];
+            T p = items[correctIndex(nextFirst + 1)];
             nextFirst = correctIndex(nextFirst + 1);
             size--;
             if (items.length >= 16 && size / items.length < 0.30) {
@@ -94,11 +94,11 @@ public class ArrayDeque<Item> {
         }
     }
 
-    public Item removeLast() {
+    public T removeLast() {
         if (size == 0) {
             return null;
         } else {
-            Item p = items[correctIndex(nextEnd - 1)];
+            T p = items[correctIndex(nextEnd - 1)];
             nextEnd = correctIndex(nextEnd - 1);
             size--;
             if (items.length >= 16 && size / items.length < 0.30) {
@@ -108,7 +108,7 @@ public class ArrayDeque<Item> {
         }
     }
 
-    public Item get(int index) {
+    public T get(int index) {
         if (index < 0 || index > size - 1) {
             return null;
         } else {
@@ -116,7 +116,7 @@ public class ArrayDeque<Item> {
             for (int i = 0; i < index; i++) {
                 j = correctIndex(j + 1);
             }
-            Item p  = items[j];
+            T p  = items[j];
             return p;
         }
     }
