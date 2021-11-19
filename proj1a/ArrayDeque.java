@@ -24,13 +24,13 @@ public class ArrayDeque<T> {
     private void resize() {
         T[] p = (T[]) new Object[items.length + 8];
         int j = correctIndex(head);
-        for (int i = size-1; i >= 0; i--) {
+        for (int i = size - 1; i >= 0; i--) {
             p[i] = items[j];
             j = correctIndex(j - 1);
         }
         items = p;
         head = size - 1;
-        tail = items.length-1;
+        tail = items.length - 1;
     }
 
     private void resize2() {
@@ -50,7 +50,7 @@ public class ArrayDeque<T> {
         if (size >= items.length) {
             resize();
         }
-        if (size == 0){
+        if (size == 0) {
             items[head] = argument;
             tail = correctIndex(tail--);
         } else {
@@ -76,7 +76,7 @@ public class ArrayDeque<T> {
     }
 
 
-    public boolean isEmpty(){
+    public boolean isEmpty() {
         return size == 0;
     }
 
