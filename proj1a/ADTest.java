@@ -10,9 +10,8 @@ public class ADTest {
         a.addLast(6);
         a.addLast(7);
         a.addLast(8);
-        a.addLast(9);
-        a.addLast(10);
         a.removeFirst();
-        a.printDeque();
+        a.removeLast();
+        a.get(0);
     }
 }

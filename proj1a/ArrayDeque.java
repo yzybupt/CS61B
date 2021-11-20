@@ -34,16 +34,15 @@ public class ArrayDeque<T> {
     }
 
     private void resize2() {
-        /**T[] p = (T[]) new Object[(int) (items.length * 0.5 + 1)];
-        int j = correctIndex(head + 1);
-        for (int i = 0; i < size; i++) {
+        T[] p = (T[]) new Object[(int) (items.length * 0.5 + 1)];
+        int j = correctIndex(head);
+        for (int i = size - 1; i >= 0; i--) {
             p[i] = items[j];
-            j = correctIndex(j + 1);
+            j = correctIndex(j - 1);
         }
         items = p;
-        head = items.length - 1;
-        tail = size;
-         */
+        head = size - 1;
+        tail = items.length - 1;
     }
 
     public void addFirst(T argument) {
@@ -66,13 +65,11 @@ public class ArrayDeque<T> {
         }
         if (size == 0) {
             items[head] = argument;
-            tail = correctIndex(tail - 1);
-            size++;
         } else {
             items[tail] = argument;
-            tail = correctIndex(tail - 1);
-            size++;
         }
+        tail = correctIndex(tail - 1);
+        size++;
     }
 
 
@@ -111,7 +108,7 @@ public class ArrayDeque<T> {
             return null;
         } else {
             T p = items[correctIndex(tail + 1)];
-            tail = correctIndex(tail);
+            tail = correctIndex(tail + 1);
             size--;
             if (items.length >= 16 && size / items.length < 0.30) {
                 resize2();
@@ -124,7 +121,7 @@ public class ArrayDeque<T> {
         if (index < 0 || index > size - 1) {
             return null;
         } else {
-            int j = correctIndex(head + 1);
+            int j = correctIndex(head);
             for (int i = 0; i < index; i++) {
                 j = correctIndex(j + 1);
             }
