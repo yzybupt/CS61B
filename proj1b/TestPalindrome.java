@@ -2,9 +2,8 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class TestPalindrome {
-    // You must use this palindrome, and not instantiate
-    // new Palindromes, or the autograder might be upset.
-    //static Palindrome palindrome = new Palindrome();
+
+    static Palindrome palindrome = new Palindrome();
 
     @Test
     public void testWordToDeque() {
@@ -15,29 +14,27 @@ public class TestPalindrome {
         }
         assertEquals("persiflage", actual);
     }
-    //Uncomment this class once you've created your Palindrome class.
 
     @Test
-    public void testIsPalindrome() {
+    public void testisPalindrome() {
+        assertTrue(palindrome.isPalindrome("t"));
+        assertFalse(palindrome.isPalindrome("cat"));
         assertTrue(palindrome.isPalindrome("noon"));
-        assertTrue(palindrome.isPalindrome("aakkaa"));
-        assertTrue(palindrome.isPalindrome("a"));
-        assertTrue(palindrome.isPalindrome("   "));
-        assertTrue(palindrome.isPalindrome(""));
-        assertTrue(palindrome.isPalindrome(" "));
-        assertTrue(palindrome.isPalindrome(null));
-        assertFalse(palindrome.isPalindrome("aA"));
     }
 
     @Test
-    public void testIsPalindrome1() {
-        OffByOne cc = new OffByOne();
-        assertTrue(palindrome.isPalindrome("@BCA", cc));
-        assertTrue(palindrome.isPalindrome("a", cc));
-        assertFalse(palindrome.isPalindrome("   ", cc));
-        assertTrue(palindrome.isPalindrome("", cc));
-        assertTrue(palindrome.isPalindrome(" ", cc));
-        assertTrue(palindrome.isPalindrome(null, cc));
-        assertFalse(palindrome.isPalindrome("aA", cc));
+    public void testisPalindromecc() {
+        OffByOne obo = new OffByOne();
+        assertTrue(palindrome.isPalindrome("", obo));
+        assertTrue(palindrome.isPalindrome("a", obo));
+        assertTrue(palindrome.isPalindrome("flake", obo));
+        assertTrue(palindrome.isPalindrome("zyzy", obo));
+        assertTrue(palindrome.isPalindrome("yyxz", obo));
+        assertTrue(palindrome.isPalindrome("yyyxz", obo));
+        assertFalse(palindrome.isPalindrome("aa", obo));
+        assertFalse(palindrome.isPalindrome("xyz", obo));
+        assertFalse(palindrome.isPalindrome("aa", obo));
+        assertFalse(palindrome.isPalindrome("zxzx", obo));
     }
+
 }
