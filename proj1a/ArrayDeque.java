@@ -51,7 +51,7 @@ public class ArrayDeque<T> {
         }
         if (size == 0) {
             items[head] = argument;
-            tail = correctIndex(tail--);
+            tail = correctIndex(tail - 1);
         } else {
             items[correctIndex(head + 1)] = argument;
             head = correctIndex(head + 1);
