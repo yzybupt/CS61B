@@ -9,13 +9,13 @@ public class TestArrayDequeGold {
         String mess = "";
         for (int j = 0; j <= i; j++) {
             if (operations[j] == 1) {
-                mess = mess + "\naddFirst(" + numbers[j] + ")";
+                mess = mess + "addFirst(" + numbers[j] + ")\n";
             } else if (operations[j] == 2) {
-                mess = mess + "\naddLast(" + numbers[j] + ")";
+                mess = mess + "addLast(" + numbers[j] + ")\n";
             } else if (operations[j] == 3) {
-                mess = mess + "\nremoveFirst";
+                mess = mess + "removeFirst()\n";
             } else if (operations[j] == 4) {
-                mess = mess + "\nremoveLast";
+                mess = mess + "removeLast()\n";
             }
         }
         return mess;
