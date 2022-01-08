@@ -1,6 +1,8 @@
 
 package synthesizer;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 
 public class ArrayRingBuffer<T> extends AbstractBoundedQueue<T> {
@@ -73,14 +75,32 @@ public class ArrayRingBuffer<T> extends AbstractBoundedQueue<T> {
     }
 
     private class Iteration implements Iterator<T> {
-        public boolean hasNext() {
+        int pointer = -1;
+        List<T> list = new ArrayList<T>();
+        Iteration() {
+            while (!isEmpty()) {
+                list.add(dequeue());
+            }
+            for (int i = 0; i < capacity; i++) {
+                enqueue(list.get(i));
+            }
+            if (!isEmpty()) {
+                pointer = 0;
+            }
+        }
 
-            return !isEmpty();
+
+        public boolean hasNext() {
+            if (pointer == -1 || pointer == capacity) {
+                return false;
+            }
+            return true;
 
 
         }
         public T next() {
-            return dequeue();
+            pointer++;
+            return list.get(pointer);
         }
 
 
