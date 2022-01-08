@@ -53,7 +53,6 @@ public class GuitarString {
      * the Karplus-Strong algorithm. 
      */
     public void tic() {
-
         double first = buffer.dequeue();
         double second = buffer.peek();
         buffer.enqueue(0.5 * (first + second) * DECAY);
@@ -61,7 +60,6 @@ public class GuitarString {
 
     /* Return the double at the front of the buffer. */
     public double sample() {
-
         return buffer.peek();
     }
 }

@@ -62,7 +62,7 @@ public class ArrayRingBuffer<T> extends AbstractBoundedQueue<T> {
     public T peek() {
 
         if (this.isEmpty()) {
-            return null;
+            throw new RuntimeException("None in the Array");
         }
         return rb[this.first];
     }
