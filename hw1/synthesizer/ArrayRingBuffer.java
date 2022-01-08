@@ -99,8 +99,9 @@ public class ArrayRingBuffer<T> extends AbstractBoundedQueue<T> {
 
         }
         public T next() {
+            T temp = list.get(pointer);
             pointer++;
-            return list.get(pointer);
+            return temp;
         }
 
 
