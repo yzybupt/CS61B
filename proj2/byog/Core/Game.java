@@ -2,12 +2,17 @@ package byog.Core;
 
 import byog.TileEngine.TERenderer;
 import byog.TileEngine.TETile;
+import byog.TileEngine.Tileset;
+
+import java.util.ArrayList;
+import java.util.Random;
+import java.util.List;
 
 public class Game {
     TERenderer ter = new TERenderer();
     /* Feel free to change the width and height. */
-    public static final int WIDTH = 80;
-    public static final int HEIGHT = 30;
+    public static final int WIDTH = 300;
+    public static final int HEIGHT = 300;
 
     /**
      * Method used for playing a fresh game. The game should start from the main menu.
@@ -31,8 +36,48 @@ public class Game {
         // TODO: Fill out this method to run the game using the input passed in,
         // and return a 2D tile representation of the world that would have been
         // drawn if the same inputs had been given to playWithKeyboard().
+        long seed;
+        if(input.equals("l") || input.equals("L")) {
+            seed = Saved_Game.saved_seed;
+            Saved_Game.flag = 0;
+        } else if ((input.length() >= 2) && ((input.substring(input.length() - 2).contains(":Q")) || (input.substring(input.length() - 2).contains(":q")))) {
+            seed = Long.parseLong(input.replaceAll("[^0-9]", ""));
+            Saved_Game.saved_seed = seed;
+            Saved_Game.flag = 1;
+        } else {
+            seed = Long.parseLong(input.replaceAll("[^0-9]", ""));
+        }
 
-        TETile[][] finalWorldFrame = null;
+        Random random = new Random();
+        random.setSeed(seed);
+
+        TETile[][] finalWorldFrame = new TETile[WIDTH][HEIGHT];
+        for (int x = 0; x < WIDTH; x += 1) {
+            for (int y = 0; y < HEIGHT; y += 1) {
+                finalWorldFrame[x][y] = Tileset.NOTHING;
+            }
+        }
+
+        List<Room> existing_rooms = new ArrayList<>();
+        System.out.println("aaa");
+        int number = random.nextInt(12)%(12-9+1) + 9;
+        while (existing_rooms.size() < number) {
+            int x = random.nextInt(WIDTH - 1);
+            int y = random.nextInt(HEIGHT - 1);
+            int width = random.nextInt(10)%(10-3+1) + 3;
+            int height = random.nextInt(10)%(10-3+1) + 3;
+            if(Room.border_check(WIDTH,HEIGHT,x,y,width,height) && Room.existing_check(existing_rooms,x,y,width,height)) {
+                System.out.println("bbb");
+                existing_rooms.add(new Room(x,y,width,height));
+            }
+        }
+
+        System.out.println("aaa");
+        for (int i = 0; i < existing_rooms.size(); i++) {
+            existing_rooms.get(i).drawRoom(finalWorldFrame);
+        }
+
+
         return finalWorldFrame;
     }
 }
