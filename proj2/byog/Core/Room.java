@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Set;
 
 public class Room {
-    private int width;
-    private int height;
-    private int x;
-    private int y;
+    protected int width;
+    protected int height;
+    protected int x;
+    protected int y;
 
     public Room(int x, int y, int width, int height) {
         this.width = width;
