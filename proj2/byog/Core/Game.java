@@ -36,17 +36,16 @@ public class Game {
      * @return the 2D TETile[][] representing the state of the world
      */
     public TETile[][] playWithInputString(String input) {
-        // TODO: Fill out this method to run the game using the input passed in,
-        // and return a 2D tile representation of the world that would have been
-        // drawn if the same inputs had been given to playWithKeyboard().
         long seed;
+        boolean e = input.substring(input.length() - 2).contains(":Q");
+        boolean e2 = input.substring(input.length() - 2).contains(":q");
         if (input.equals("l") || input.equals("L")) {
-            seed = Saved_Game.saved_seed;
-            Saved_Game.flag = 0;
-        } else if ((input.length() >= 2) && ((input.substring(input.length() - 2).contains(":Q")) || (input.substring(input.length() - 2).contains(":q")))) {
+            seed = SavedGame.savedseed;
+            SavedGame.flag = 0;
+        } else if ((input.length() >= 2) && (e || e2)) {
             seed = Long.parseLong(input.replaceAll("[^0-9]", ""));
-            Saved_Game.saved_seed = seed;
-            Saved_Game.flag = 1;
+            SavedGame.savedseed = seed;
+            SavedGame.flag = 1;
         } else {
             seed = Long.parseLong(input.replaceAll("[^0-9]", ""));
         }
@@ -61,31 +60,34 @@ public class Game {
             }
         }
 
-        List<Room> existing_rooms = new ArrayList<>();
+        List<Room> existings = new ArrayList<>();
 
-        int number = random.nextInt(11)%(11-8+1) + 8;
-        while (existing_rooms.size() < number) {
+        int number = random.nextInt(11) % (11 - 8 + 1) + 8;
+        while (existings.size() < number) {
             int x = random.nextInt(WIDTH - 1);
             int y = random.nextInt(HEIGHT - 1);
-            int width = random.nextInt(12)%(12-6+1) + 6;
-            int height = random.nextInt(12)%(12-6+1) + 6;
-            if(Room.border_check(WIDTH,HEIGHT,x,y,width,height) && Room.existing_check(existing_rooms,x,y,width,height)) {
+            int width = random.nextInt(12) % (12 - 6 + 1) + 6;
+            int height = random.nextInt(12) % (12 - 6 + 1) + 6;
+            boolean l = Room.bordercheck(WIDTH, HEIGHT, x, y, width, height);
+            if (l && Room.existingcheck(existings, x, y, width, height)) {
 
-                existing_rooms.add(new Room(x,y,width,height));
+                existings.add(new Room(x, y, width, height));
             }
         }
 
 
-        for (int i = 0; i < existing_rooms.size(); i++) {
-            existing_rooms.get(i).drawRoom(finalWorldFrame);
+        for (int i = 0; i < existings.size(); i++) {
+            existings.get(i).drawRoom(finalWorldFrame);
         }
 
 
-        for (int i = 0; i < existing_rooms.size(); i++) {
-            for (int j = i + 1; j < existing_rooms.size(); j++) {
-                Hall_Way.draw_hall_way(finalWorldFrame,Hall_Way.hall_way_generator(existing_rooms.get(i), existing_rooms.get(j)));
-                Hall_Way.draw_hall_way2(finalWorldFrame,Hall_Way.hall_way_generator(existing_rooms.get(i), existing_rooms.get(j)));
-                Hall_Way.draw_hall_way3(finalWorldFrame,Hall_Way.hall_way_generator(existing_rooms.get(i), existing_rooms.get(j)));
+        for (int i = 0; i < existings.size(); i++) {
+            for (int j = i + 1; j < existings.size(); j++) {
+                Room r = existings.get(i);
+                int[][] res = HallWay.hallwaygenerator(r, existings.get(j));
+                HallWay.drawhallway(finalWorldFrame, res);
+                HallWay.drawhallway2(finalWorldFrame, res);
+                HallWay.drawhallway3(finalWorldFrame, res);
             }
         }
 

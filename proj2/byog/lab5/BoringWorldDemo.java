@@ -31,7 +31,7 @@ public class BoringWorldDemo {
         //      }
         // }
 
-        AddHexagon.addHexagon(10,10,2,world);
+        AddHexagon.addHexagon(10, 10, 2, world);
 
         // draws the world to the screen
         ter.renderFrame(world);

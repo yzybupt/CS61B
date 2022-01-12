@@ -23,7 +23,7 @@ public class Room {
     public void drawRoom(TETile[][] world) {
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                if(j == 0 || j == height - 1) {
+                if (j == 0 || j == height - 1) {
                     world[x + i][y + j] = Tileset.WALL;
                 } else if (i == 0 || i == width - 1) {
                     world[x + i][y + j] = Tileset.WALL;
@@ -34,21 +34,21 @@ public class Room {
         }
     }
 
-    public static boolean border_check (int border_width, int border_height, int x, int y, int width, int height) {
+    static boolean bordercheck(int bwidth, int bheight, int x, int y, int width, int height) {
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                    if (x + i < 0 || x + i > border_width - 1) {
-                        return false;
-                    } else if (y + j < 0 || y + j > border_height - 1) {
-                        return false;
-                    }
+                if (x + i < 0 || x + i > bwidth - 1) {
+                    return false;
+                } else if (y + j < 0 || y + j > bheight - 1) {
+                    return false;
                 }
             }
+        }
         return true;
 
     }
 
-    public static boolean existing_check (List<Room> list, int x, int y, int width, int height) {
+    public static boolean existingcheck(List<Room> list, int x, int y, int width, int height) {
         if (list.isEmpty()) {
             return true;
         } else {
@@ -67,7 +67,7 @@ public class Room {
 
                 for (int k = 0; k < width; k++) {
                     for (int j = 0; j < height; j++) {
-                        if((sets.contains(x + k)) || (sets.contains(y + j))) {
+                        if ((sets.contains(x + k)) || (sets.contains(y + j))) {
                             return false;
                         }
                     }
