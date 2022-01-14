@@ -12,8 +12,8 @@ import java.util.List;
 public class Game {
     TERenderer ter = new TERenderer();
     /* Feel free to change the width and height. */
-    public static final int WIDTH = 700;
-    public static final int HEIGHT = 700;
+    public static final int WIDTH = 80;
+    public static final int HEIGHT = 80;
 
 
 
@@ -63,7 +63,7 @@ public class Game {
         List<Room> existings = new ArrayList<>();
 
         int number = random.nextInt(11) % (11 - 8 + 1) + 8;
-        while (existings.size() < number) {
+        while (existings.size() < 4) {
             int x = random.nextInt(WIDTH - 1);
             int y = random.nextInt(HEIGHT - 1);
             int width = random.nextInt(12) % (12 - 6 + 1) + 6;
