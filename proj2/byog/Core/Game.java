@@ -74,7 +74,7 @@ public class Game {
             if (l && Room.existingcheck(existings, x, y, width, height)) {
                 existings.add(new Room(x, y, width, height));
             }
-            if(robust > 400) {
+            if (robust > 400) {
                 break;
             }
         }
