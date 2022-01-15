@@ -115,8 +115,6 @@ public class Game {
         }
 
 
-        ter.initialize(WIDTH, HEIGHT);
-        ter.renderFrame(finalWorldFrame);
 
 
         return finalWorldFrame;
@@ -218,5 +216,4 @@ public class Game {
 
     }
 }
-
 
