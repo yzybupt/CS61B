@@ -22,8 +22,12 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
         private Node(K k, V v) {
             key = k;
             value = v;
+            left = null;
+            right = null;
         }
+
     }
+
 
     private Node root;  /* Root node of the tree. */
     private int size; /* The number of key-value pairs in the tree */
@@ -44,7 +48,18 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
      *  or null if this map contains no mapping for the key.
      */
     private V getHelper(K key, Node p) {
-        throw new UnsupportedOperationException();
+        if (p == null) {
+            return null;
+        }
+
+        if (p.key.compareTo(key) == 0) {
+            return p.value;
+        } else if (p.key.compareTo(key) > 0) {
+            return getHelper(key, p.left);
+        } else {
+            return getHelper(key, p.right);
+        }
+
     }
 
     /** Returns the value to which the specified key is mapped, or null if this
@@ -52,14 +67,24 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
      */
     @Override
     public V get(K key) {
-        throw new UnsupportedOperationException();
+        return getHelper(key, this.root);
     }
 
     /** Returns a BSTMap rooted in p with (KEY, VALUE) added as a key-value mapping.
       * Or if p is null, it returns a one node BSTMap containing (KEY, VALUE).
      */
     private Node putHelper(K key, V value, Node p) {
-        throw new UnsupportedOperationException();
+        if (p == null) {
+            p = new Node(key, value);
+            this.size++;
+        } else if (p.key.compareTo(key) == 0) {
+            p.value = value;
+        } else if (p.key.compareTo(key) > 0) {
+            p.left = putHelper(key, value, p.left);
+        } else {
+            p.right = putHelper(key, value, p.right);
+        }
+        return p;
     }
 
     /** Inserts the key KEY
@@ -67,13 +92,13 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
      */
     @Override
     public void put(K key, V value) {
-        throw new UnsupportedOperationException();
+        this.root = putHelper(key, value, this.root);
     }
 
     /* Returns the number of key-value mappings in this map. */
     @Override
     public int size() {
-        throw new UnsupportedOperationException();
+        return this.size;
     }
 
     //////////////// EVERYTHING BELOW THIS LINE IS OPTIONAL ////////////////
