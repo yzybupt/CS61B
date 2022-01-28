@@ -1,6 +1,8 @@
 package hw2;
 
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
+import org.junit.Test;
+import org.junit.Assert;
 
 public class Percolation {
     private int size;
@@ -19,12 +21,20 @@ public class Percolation {
     }
 
     private void connects (int x, int y) {
-        for (int i = 0; i < 4; i++) {
-            int row = x + (int) Math.pow(-1, i);
-            int col = y + (int) Math.pow(-1, i + 1);
-            if(checkBoarder(row, col) && this.grid[row][col] == 1) {
-                unions.union(xyTo1d(x,y),xyTo1d(row,col));
-            }
+        if(checkBoarder(x - 1, y) && this.grid[x - 1][y] == 1) {
+            unions.union(xyTo1d(x, y), xyTo1d(x - 1, y));
+        }
+
+        if(checkBoarder(x + 1, y) && this.grid[x + 1][y] == 1) {
+            unions.union(xyTo1d(x, y), xyTo1d(x + 1, y));
+        }
+
+        if(checkBoarder(x, y - 1) && this.grid[x][y - 1] == 1) {
+            unions.union(xyTo1d(x, y), xyTo1d(x, y - 1));
+        }
+
+        if(checkBoarder(x, y + 1) && this.grid[x][y + 1] == 1) {
+            unions.union(xyTo1d(x, y), xyTo1d(x, y + 1));
         }
     }
 
@@ -50,7 +60,7 @@ public class Percolation {
 
 
     public void open(int row, int col) { // open the site (row, col) if it is not open already
-        if(!checkBoarder(row, col)) {
+        if (!checkBoarder(row, col)) {
             return;
         }
 
@@ -62,16 +72,22 @@ public class Percolation {
     }
 
     public boolean isOpen(int row, int col) { // is the site (row, col) open?
-        if(!checkBoarder(row, col)) {
+        if (!checkBoarder(row, col)) {
             return false;
         }
+
         return this.grid[row][col] == 1;
     }
 
     public boolean isFull(int row, int col) { // is the site (row, col) full?
-        if(!checkBoarder(row, col)) {
+        if (!checkBoarder(row, col)) {
             return false;
         }
+
+        if (!isOpen(row, col)) {
+            return false;
+        }
+
         for (int i = 0; i < this.size; i++) {
             if (unions.connected(i, xyTo1d(row, col))) {
                 return true;
@@ -87,7 +103,7 @@ public class Percolation {
     public boolean percolates() { // does the system percolate?
         for(int i = 0; i < this.size; i++) {
             for (int j = 0; j < this.size; j++) {
-                if (unions.connected(i, xyTo1d(this.size - 1, j))) {
+                if (unions.connected(i, xyTo1d(this.size - 1, j)) && isOpen(this.size - 1, j) && isOpen(i / this.size,i % this.size)) {
                     return true;
                 }
             }
@@ -97,6 +113,11 @@ public class Percolation {
 
     public static void main(String[] args) { // use for unit testing (not required)
 
+        Percolation pf = new Percolation(5);
+        pf.open(0,3);
+        pf.open(1,3);
+        Assert.assertEquals(false,pf.percolates());
+        Assert.assertEquals(true,pf.isFull(0,4));
     }
 }
 
