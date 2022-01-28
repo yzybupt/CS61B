@@ -29,7 +29,6 @@ public class Percolation {
     }
 
     private int xyTo1d(int x , int y) {
-
         return x * this.size + y;
     }
 
@@ -51,6 +50,10 @@ public class Percolation {
 
 
     public void open(int row, int col) { // open the site (row, col) if it is not open already
+        if(!checkBoarder(row, col)) {
+            return;
+        }
+
         if (!isOpen(row,col)) {
             this.grid[row][col] = 1;
             this.number++;
@@ -59,10 +62,16 @@ public class Percolation {
     }
 
     public boolean isOpen(int row, int col) { // is the site (row, col) open?
+        if(!checkBoarder(row, col)) {
+            return false;
+        }
         return this.grid[row][col] == 1;
     }
 
     public boolean isFull(int row, int col) { // is the site (row, col) full?
+        if(!checkBoarder(row, col)) {
+            return false;
+        }
         for (int i = 0; i < this.size; i++) {
             if (unions.connected(i, xyTo1d(row, col))) {
                 return true;
