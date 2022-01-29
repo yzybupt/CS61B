@@ -2,6 +2,7 @@ package hw2;
 
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 import org.junit.Test;
+import java.lang.Exception;
 import org.junit.Assert;
 
 public class Percolation {
@@ -50,7 +51,10 @@ public class Percolation {
         }
     }
 
-    public Percolation(int N) { // create N-by-N grid, with all sites initially blocked
+    public Percolation(int N) throws Exception { // create N-by-N grid, with all sites initially blocked
+        if (N <= 0) {
+            throw new Exception("The size can not be less than or equal to zero");
+        }
         this.unions = new WeightedQuickUnionUF(N * N);
         this.number = 0;
         this.grid = new int[N][N];
@@ -113,11 +117,16 @@ public class Percolation {
 
     public static void main(String[] args) { // use for unit testing (not required)
 
-        Percolation pf = new Percolation(5);
-        pf.open(0,3);
-        pf.open(1,3);
-        Assert.assertEquals(false,pf.percolates());
-        Assert.assertEquals(true,pf.isFull(0,4));
+        try {
+            Percolation pf = new Percolation(5);
+            pf.open(0,3);
+            pf.open(1,3);
+            Assert.assertEquals(false,pf.percolates());
+            Assert.assertEquals(true,pf.isFull(0,4));
+        } catch (Exception e) {
+
+
+        }
     }
 }
 
