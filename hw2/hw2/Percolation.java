@@ -70,7 +70,8 @@ public class Percolation {
             connects(row,col);
             if (row == 0) {
                 unions.union(xyTo1d(row, col),this.size * this.size);
-            } else if (row == this.size - 1) {
+            }
+            if (row == this.size - 1) {
                 unions.union(xyTo1d(row, col), this.size * this.size + 1);
             }
 
