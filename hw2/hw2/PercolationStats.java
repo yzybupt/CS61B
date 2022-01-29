@@ -1,4 +1,3 @@
-
 package hw2;
 
 import edu.princeton.cs.introcs.StdRandom;
@@ -38,19 +37,19 @@ public class PercolationStats {
         for (double d : results) {
             sum = sum + (d - mean()) * (d - mean()) ;
         }
-        return (double) sum / (results.length - 1);
+        return Math.pow((double) sum / (results.length - 1), 0.5);
     }
 
     public double confidenceLow() { // low endpoint of 95% confidence interval
         double low;
-        low = mean() - 1.96 * Math.pow(stddev(), 0.5) / Math.pow(this.T, 0.5);
+        low = mean() - 1.96 * stddev() / Math.pow(this.T, 0.5);
         return low;
 
     }
 
     public double confidenceHigh() { // high endpoint of 95% confidence interval
         double high;
-        high = mean() + 1.96 * Math.pow(stddev(), 0.5) / Math.pow(this.T, 0.5);
+        high = mean() + 1.96 * stddev() / Math.pow(this.T, 0.5);
         return high;
     }
 }
