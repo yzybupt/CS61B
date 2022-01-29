@@ -60,7 +60,7 @@ public class PercolationVisualizer {
 
     }
 
-    private static void simulateFromFile(String filename) throws Exception{
+    private static void simulateFromFile(String filename) {
         In in = new In(filename);
         int N = in.readInt();
         Percolation perc = new Percolation(N);
@@ -80,7 +80,7 @@ public class PercolationVisualizer {
         }
     }
 
-    public static void main(String[] args) throws Exception{
+    public static void main(String[] args) {
         String filename = args[0];
         simulateFromFile(filename);
     }
