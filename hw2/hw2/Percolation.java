@@ -51,7 +51,7 @@ public class Percolation {
     }
 
     public Percolation(int N) { // create N-by-N grid, with all sites initially blocked
-        this.unions = new WeightedQuickUnionUF(N * N);
+        this.unions = new WeightedQuickUnionUF(N * N + 2);
         this.number = 0;
         this.grid = new int[N][N];
         this.size = N;
@@ -68,7 +68,14 @@ public class Percolation {
             this.grid[row][col] = 1;
             this.number++;
             connects(row,col);
+            if (row == 0) {
+                unions.union(xyTo1d(row, col),this.size * this.size);
+            } else if (row == this.size - 1) {
+                unions.union(xyTo1d(row, col), this.size * this.size + 1);
+            }
+
         }
+
     }
 
     public boolean isOpen(int row, int col) { // is the site (row, col) open?
@@ -88,11 +95,11 @@ public class Percolation {
             return false;
         }
 
-        for (int i = 0; i < this.size; i++) {
-            if (unions.connected(i, xyTo1d(row, col))) {
+
+        if (unions.connected(xyTo1d(row, col), this.size * this.size)) {
                 return true;
-            }
         }
+
         return false;
     }
 
@@ -101,14 +108,11 @@ public class Percolation {
     }
 
     public boolean percolates() { // does the system percolate?
-        for(int i = 0; i < this.size; i++) {
-            for (int j = 0; j < this.size; j++) {
-                if (unions.connected(i, xyTo1d(this.size - 1, j)) && isOpen(this.size - 1, j) && isOpen(i / this.size,i % this.size)) {
-                    return true;
-                }
-            }
+        if(unions.connected(this.size * this.size, this.size * this.size + 1)) {
+            return true;
+        } else {
+            return false;
         }
-        return false;
     }
 
     public static void main(String[] args) { // use for unit testing (not required)
