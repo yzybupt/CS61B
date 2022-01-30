@@ -15,6 +15,10 @@ public class PercolationStats {
     }
 
     public PercolationStats(int N, int T, PercolationFactory pf)  { // perform T independent experiments on an N-by-N grid
+        if (N <= 0 || T <= 0) {
+            throw new IllegalArgumentException("N > 0 && T > 0");
+        }
+
         this.T = T;
         this.results = new double[T];
         for (int i = 0; i < T; i++) {

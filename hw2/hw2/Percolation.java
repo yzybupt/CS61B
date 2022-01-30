@@ -9,6 +9,7 @@ public class Percolation {
     private int[][] grid;
     private int number;
     private WeightedQuickUnionUF unions;
+    private WeightedQuickUnionUF unions2;
 
 
     private boolean checkBoarder (int x, int y) {
@@ -23,18 +24,23 @@ public class Percolation {
     private void connects (int x, int y) {
         if(checkBoarder(x - 1, y) && this.grid[x - 1][y] == 1) {
             unions.union(xyTo1d(x, y), xyTo1d(x - 1, y));
+            unions2.union(xyTo1d(x, y), xyTo1d(x - 1, y));
+
         }
 
         if(checkBoarder(x + 1, y) && this.grid[x + 1][y] == 1) {
             unions.union(xyTo1d(x, y), xyTo1d(x + 1, y));
+            unions2.union(xyTo1d(x, y), xyTo1d(x + 1, y));
         }
 
         if(checkBoarder(x, y - 1) && this.grid[x][y - 1] == 1) {
             unions.union(xyTo1d(x, y), xyTo1d(x, y - 1));
+            unions2.union(xyTo1d(x, y), xyTo1d(x, y - 1));
         }
 
         if(checkBoarder(x, y + 1) && this.grid[x][y + 1] == 1) {
             unions.union(xyTo1d(x, y), xyTo1d(x, y + 1));
+            unions2.union(xyTo1d(x, y), xyTo1d(x, y + 1));
         }
     }
 
@@ -51,7 +57,12 @@ public class Percolation {
     }
 
     public Percolation(int N) { // create N-by-N grid, with all sites initially blocked
+        if (N < 10) {
+            throw new IllegalArgumentException("N must > 0");
+        }
+
         this.unions = new WeightedQuickUnionUF(N * N + 2);
+        this.unions2 = new WeightedQuickUnionUF(N * N + 1);
         this.number = 0;
         this.grid = new int[N][N];
         this.size = N;
@@ -70,6 +81,7 @@ public class Percolation {
             connects(row,col);
             if (row == 0) {
                 unions.union(xyTo1d(row, col),this.size * this.size);
+                unions2.union(xyTo1d(row, col),this.size * this.size);
             }
             if (row == this.size - 1) {
                 unions.union(xyTo1d(row, col), this.size * this.size + 1);
@@ -97,7 +109,7 @@ public class Percolation {
         }
 
 
-        if (unions.connected(xyTo1d(row, col), this.size * this.size)) {
+        if (unions2.connected(xyTo1d(row, col), this.size * this.size)) {
                 return true;
         }
 
