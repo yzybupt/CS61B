@@ -1,3 +1,4 @@
+
 /******************************************************************************
  *  Compilation:  javac InteractivePercolationVisualizer.java
  *  Execution:    java InteractivePercolationVisualizer N
@@ -59,4 +60,5 @@ public class InteractivePercolationVisualizer {
             StdDraw.show(DELAY);
         }
     }
+
 }

@@ -9,12 +9,12 @@ public class PercolationStats {
     private double experiment(int N, PercolationFactory pf) {
         Percolation grid = pf.make(N);
         while (!grid.percolates()) {
-            grid.open(StdRandom.uniform(N),StdRandom.uniform(N));
+            grid.open(StdRandom.uniform(N), StdRandom.uniform(N));
         }
         return (double) grid.numberOfOpenSites() / (N * N);
     }
 
-    public PercolationStats(int N, int T, PercolationFactory pf)  { // perform T independent experiments on an N-by-N grid
+    public PercolationStats(int N, int T, PercolationFactory pf)  {
         if (N <= 0 || T <= 0) {
             throw new IllegalArgumentException("N > 0 && T > 0");
         }
@@ -36,10 +36,10 @@ public class PercolationStats {
     }
 
 
-    public double stddev(){ // sample standard deviation of percolation threshold
+    public double stddev() { // sample standard deviation of percolation threshold
         double sum = 0.0;
         for (double d : results) {
-            sum = sum + (d - mean()) * (d - mean()) ;
+            sum = sum + (d - mean()) * (d - mean());
         }
         return Math.pow((double) sum / (results.length - 1), 0.5);
     }

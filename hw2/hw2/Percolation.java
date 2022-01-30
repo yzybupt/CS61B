@@ -1,7 +1,6 @@
 package hw2;
 
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
-import org.junit.Test;
 import org.junit.Assert;
 
 public class Percolation {
@@ -12,46 +11,46 @@ public class Percolation {
     private WeightedQuickUnionUF unions2;
 
 
-    private boolean checkBoarder (int x, int y) {
+    private boolean checkBoarder(int x, int y) {
         if (x < 0 || x > this.size - 1) {
             return false;
-        } else if (y < 0 || y > this.size -1) {
+        } else if (y < 0 || y > this.size - 1) {
             return false;
         }
         return true;
     }
 
-    private void connects (int x, int y) {
-        if(checkBoarder(x - 1, y) && this.grid[x - 1][y] == 1) {
+    private void connects(int x, int y) {
+        if (checkBoarder(x - 1, y) && this.grid[x - 1][y] == 1) {
             unions.union(xyTo1d(x, y), xyTo1d(x - 1, y));
             unions2.union(xyTo1d(x, y), xyTo1d(x - 1, y));
 
         }
 
-        if(checkBoarder(x + 1, y) && this.grid[x + 1][y] == 1) {
+        if (checkBoarder(x + 1, y) && this.grid[x + 1][y] == 1) {
             unions.union(xyTo1d(x, y), xyTo1d(x + 1, y));
             unions2.union(xyTo1d(x, y), xyTo1d(x + 1, y));
         }
 
-        if(checkBoarder(x, y - 1) && this.grid[x][y - 1] == 1) {
+        if (checkBoarder(x, y - 1) && this.grid[x][y - 1] == 1) {
             unions.union(xyTo1d(x, y), xyTo1d(x, y - 1));
             unions2.union(xyTo1d(x, y), xyTo1d(x, y - 1));
         }
 
-        if(checkBoarder(x, y + 1) && this.grid[x][y + 1] == 1) {
+        if (checkBoarder(x, y + 1) && this.grid[x][y + 1] == 1) {
             unions.union(xyTo1d(x, y), xyTo1d(x, y + 1));
             unions2.union(xyTo1d(x, y), xyTo1d(x, y + 1));
         }
     }
 
-    private int xyTo1d(int x , int y) {
+    private int xyTo1d(int x, int y) {
         return x * this.size + y;
     }
 
-    private void clear(int[][] grid) {
+    private void clear() {
         for (int i = 0; i < this.size; i++) {
             for (int j = 0; j < this.size; j++) {
-                grid[i][j] = 0;
+                this.grid[i][j] = 0;
             }
         }
     }
@@ -66,7 +65,7 @@ public class Percolation {
         this.number = 0;
         this.grid = new int[N][N];
         this.size = N;
-        clear(this.grid);
+        clear();
     }
 
 
@@ -75,13 +74,13 @@ public class Percolation {
             return;
         }
 
-        if (!isOpen(row,col)) {
+        if (!isOpen(row, col)) {
             this.grid[row][col] = 1;
             this.number++;
-            connects(row,col);
+            connects(row, col);
             if (row == 0) {
-                unions.union(xyTo1d(row, col),this.size * this.size);
-                unions2.union(xyTo1d(row, col),this.size * this.size);
+                unions.union(xyTo1d(row, col), this.size * this.size);
+                unions2.union(xyTo1d(row, col), this.size * this.size);
             }
             if (row == this.size - 1) {
                 unions.union(xyTo1d(row, col), this.size * this.size + 1);
@@ -108,9 +107,8 @@ public class Percolation {
             return false;
         }
 
-
         if (unions2.connected(xyTo1d(row, col), this.size * this.size)) {
-                return true;
+            return true;
         }
 
         return false;
@@ -121,20 +119,16 @@ public class Percolation {
     }
 
     public boolean percolates() { // does the system percolate?
-        if(unions.connected(this.size * this.size, this.size * this.size + 1)) {
-            return true;
-        } else {
-            return false;
-        }
+        return unions.connected(this.size * this.size, this.size * this.size + 1);
     }
 
     public static void main(String[] args) { // use for unit testing (not required)
 
         Percolation pf = new Percolation(5);
-        pf.open(0,3);
-        pf.open(1,3);
-        Assert.assertEquals(false,pf.percolates());
-        Assert.assertEquals(true,pf.isFull(0,4));
+        pf.open(0, 3);
+        pf.open(1, 3);
+        Assert.assertEquals(false, pf.percolates());
+        Assert.assertEquals(true, pf.isFull(0, 4));
     }
 }
 
