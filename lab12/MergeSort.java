@@ -1,6 +1,5 @@
 import edu.princeton.cs.algs4.Queue;
 
-import java.awt.event.ItemEvent;
 
 public class MergeSort {
     /**
@@ -59,7 +58,7 @@ public class MergeSort {
     private static <Item extends Comparable> Queue<Item> mergeSortedQueues(Queue<Item> q1, Queue<Item> q2) {
         Queue<Item> sorted = new Queue<>();
         while (!(q1.isEmpty() && q2.isEmpty())) {
-            sorted.enqueue(getMin(q1,q2));
+            sorted.enqueue(getMin(q1, q2));
         }
         return sorted;
 
@@ -103,13 +102,12 @@ public class MergeSort {
 
     public static void main(String[] args) {
         Queue<String> students = new Queue<String>();
-        //students.enqueue("Clice");
-        //students.enqueue("Aanessa");
-        //students.enqueue("Bthan");
+        students.enqueue("Clice");
+        students.enqueue("Aanessa");
+        students.enqueue("Bthan");
         System.out.println(students);
 
         Queue<String> after = MergeSort.mergeSort(students);
-        //System.out.println(students);
         System.out.println(after);
     }
 

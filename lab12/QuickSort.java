@@ -44,16 +44,42 @@ public class QuickSort {
      * @param greater   An empty Queue. When the function completes, this queue will contain
      *                  all of the items in unsorted that are greater than the given pivot.
      */
-    private static <Item extends Comparable> void partition(
-            Queue<Item> unsorted, Item pivot,
+    private static <Item extends Comparable> void partition(Queue<Item> unsorted, Item pivot,
             Queue<Item> less, Queue<Item> equal, Queue<Item> greater) {
-        // Your code here!
+        for (Item item : unsorted) {
+            if (item.compareTo(pivot) == 0) {
+                equal.enqueue(item);
+            } else if (item.compareTo(pivot) < 0) {
+                less.enqueue(item);
+            } else {
+                greater.enqueue(item);
+            }
+        }
     }
 
     /** Returns a Queue that contains the given items sorted from least to greatest. */
-    public static <Item extends Comparable> Queue<Item> quickSort(
-            Queue<Item> items) {
+    public static <Item extends Comparable> Queue<Item> quickSort(Queue<Item> items) {
         // Your code here!
-        return items;
+        if (items.size() == 1 || items.size() == 0) {
+            return items;
+        }
+        Queue<Item> equal = new Queue<>();
+        Queue<Item> greater = new Queue<>();
+        Queue<Item> less = new Queue<>();
+        partition(items, getRandomItem(items), less, equal, greater);
+        greater = quickSort(greater);
+        less = quickSort(less);
+        return catenate(catenate(less, equal), greater);
+    }
+
+    public static void main(String[] args) {
+        Queue<String> students = new Queue<String>();
+        students.enqueue("Clice");
+        students.enqueue("Aanessa");
+        students.enqueue("Bthan");
+        System.out.println(students);
+
+        Queue<String> after = QuickSort.quickSort(students);
+        System.out.println(after);
     }
 }
