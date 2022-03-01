@@ -261,6 +261,7 @@ public class MapServer {
         BufferedImage tileImg = null;
         if (tileImg == null) {
             try {
+                //System.out.println(imgPath);
                 File in = new File(imgPath);
                 tileImg = ImageIO.read(in);
             } catch (IOException | NullPointerException e) {
