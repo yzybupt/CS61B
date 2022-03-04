@@ -1,8 +1,11 @@
+import java.util.Comparator;
+import java.util.PriorityQueue;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.LinkedList;
 /**
  * This class provides a shortestPath method for finding routes between two points
  * on the map. Start by using Dijkstra's, and if your code isn't fast enough for your
@@ -12,6 +15,23 @@ import java.util.regex.Pattern;
  * down to the priority you use to order your vertices.
  */
 public class Router {
+    private static final double inf = Double.MAX_VALUE;
+    static ConcurrentHashMap<Long, Long> edgeFrom;
+    static ConcurrentHashMap<Long, RoutingNode> id2RoutingNode;
+    static Comparator<RoutingNode> comp = new Comparator<RoutingNode>() {
+        @Override
+        public int compare(RoutingNode o1, RoutingNode o2) {
+            if(o1.getDistanceToOrigin() > o2.getDistanceToOrigin()){
+                return 1;
+            } else if (o1.getDistanceToOrigin() < o2.getDistanceToOrigin()) {
+                return -1;
+            } else {
+                return 0;
+            }
+        }
+    };
+    static PriorityQueue<RoutingNode> fringe;
+
     /**
      * Return a List of longs representing the shortest path from the node
      * closest to a start location and the node closest to the destination
@@ -25,8 +45,82 @@ public class Router {
      */
     public static List<Long> shortestPath(GraphDB g, double stlon, double stlat,
                                           double destlon, double destlat) {
-        return null; // FIXME
+        edgeFrom = new ConcurrentHashMap<>();
+        fringe = new PriorityQueue<>(comp);
+        id2RoutingNode = new ConcurrentHashMap<>();
+        //完成空fringe的构建 空marked 空edgeFrom的建构
+
+
+        Node startNode = closetNode(g, stlon, stlat);
+        Node destNode = closetNode(g, destlon, destlat);
+        RoutingNode start = new RoutingNode(startNode.getId(), 0);
+        RoutingNode dest = new RoutingNode(destNode.getId(), inf);
+        fringe.add(start);
+        fringe.add(dest);
+        edgeFrom.put(start.getId(), Long.MIN_VALUE);
+        edgeFrom.put(dest.getId(), Long.MIN_VALUE);
+        id2RoutingNode.put(start.getId(), start);
+        id2RoutingNode.put(dest.getId(), dest);
+
+
+
+        for (Long ids : g.vertices()) {
+            if (ids != start.getId() && ids != dest.getId()) {
+                RoutingNode temp = new RoutingNode(g.nodes.get(ids).getId(), inf);
+                fringe.add(temp);
+                edgeFrom.put(temp.getId(), Long.MIN_VALUE);
+                id2RoutingNode.put(temp.getId(), temp);
+            }
+        }
+        //完成fringe的填充
+
+       //System.out.println(dest.getId());
+        //System.out.println(start.getId());
+        //开始进行Dij寻找
+        if (fringe.isEmpty()) {
+            return null;
+        } else {
+            Dij(fringe.poll(), g, dest.getId());
+            LinkedList<Long> path = new LinkedList<>();
+            Long temp = dest.getId();
+            path.addFirst(temp);
+            while (true) {
+                if (edgeFrom.get(temp) != start.getId()) {
+                    temp = edgeFrom.get(temp);
+                    path.addFirst(temp);
+                } else {
+                    temp = edgeFrom.get(temp);
+                    path.addFirst(temp);
+                    break;
+                }
+            }
+
+
+
+            return path;
+        }
     }
+
+    private static void Dij(RoutingNode parent, GraphDB g, long dest) {
+        if (parent.getId() == dest) {
+            return;
+        }
+        for (Node neighbor : g.nodes.get(parent.getId()).getNeighbor()) {
+            if (fringe.contains(id2RoutingNode.get(neighbor.getId()))) {
+                double dis = parent.getDistanceToOrigin() + g.distance(parent.getId(), neighbor.getId()) + g.distance(dest,neighbor.getId());
+                if(id2RoutingNode.get(neighbor.getId()).getDistanceToOrigin() > dis) {
+                    fringe.remove(id2RoutingNode.get(neighbor.getId()));
+                    id2RoutingNode.get(neighbor.getId()).setDistanceToOrigin(dis);
+                    fringe.add(id2RoutingNode.get(neighbor.getId()));
+                    edgeFrom.put(neighbor.getId(), parent.getId());
+                }
+            }
+        }
+        if (!fringe.isEmpty()) {
+            Dij(fringe.poll(), g, dest);
+        }
+    }
+
 
     /**
      * Create the list of directions corresponding to a route on the graph.
@@ -159,5 +253,28 @@ public class Router {
         public int hashCode() {
             return Objects.hash(direction, way, distance);
         }
+
     }
+
+    private static Node closetNode(GraphDB db, double lon, double lat) {
+        int i = 0;
+        Node closet = null;
+        double distance = 0;
+        for (Long id : db.vertices()) {
+            if (i == 0) {
+                closet = db.nodes.get(id);
+                distance = GraphDB.distance(lon, lat, closet.getLon(), closet.getLat());
+                i = 1;
+            } else {
+                double temp = GraphDB.distance(lon, lat, db.nodes.get(id).getLon(), db.nodes.get(id).getLat());
+                if (temp < distance) {
+                    closet = db.nodes.get(id);
+                    distance = temp;
+                }
+            }
+        }
+        return closet;
+
+    }
+
 }

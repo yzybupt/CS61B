@@ -80,4 +80,5 @@ public class TestGraphBuildingTiny {
                 + "especially if your actual value is 46",
                 55L, graphTiny.closest(lon, lat));
     }
+
 }

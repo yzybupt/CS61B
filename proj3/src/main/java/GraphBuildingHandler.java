@@ -1,8 +1,11 @@
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -32,6 +35,10 @@ public class GraphBuildingHandler extends DefaultHandler {
      * roads, but in practice we walk all over them with such impunity that we forget cars can
      * actually drive on them.
      */
+
+    private static final String regEx = "[^0-9]";
+    private Pattern p = Pattern.compile(regEx);//训练的模式匹配用来提取字符串中的数字
+
     private static final Set<String> ALLOWED_HIGHWAY_TYPES = new HashSet<>(Arrays.asList
             ("motorway", "trunk", "primary", "secondary", "tertiary", "unclassified",
                     "residential", "living_street", "motorway_link", "trunk_link", "primary_link",
@@ -61,50 +68,43 @@ public class GraphBuildingHandler extends DefaultHandler {
      * @throws SAXException Any SAX exception, possibly wrapping another exception.
      * @see Attributes
      */
-    @Override
-    public void startElement(String uri, String localName, String qName, Attributes attributes)
-            throws SAXException {
-        /* Some example code on how you might begin to parse XML files. */
-        if (qName.equals("node")) {
-            /* We encountered a new <node...> tag. */
-            activeState = "node";
-//            System.out.println("Node id: " + attributes.getValue("id"));
-//            System.out.println("Node lon: " + attributes.getValue("lon"));
-//            System.out.println("Node lat: " + attributes.getValue("lat"));
 
-            /* TODO Use the above information to save a "node" to somewhere. */
-            /* Hint: A graph-like structure would be nice. */
+    HashMap<Integer,Long> nodesOnWay;
+    int index;
+    String wayName = "";
+    int flag = 0; // default is that type of way is not eligible
+    @Override
+    public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+        if (qName.equals("node")) {
+            activeState = "node";
+            long id = Long.valueOf(attributes.getValue("id"));
+            double lon = Double.valueOf(attributes.getValue("lon"));
+            double lat = Double.valueOf(attributes.getValue("lat"));
+            g.nodes.put(id, new Node(id, lon, lat));
 
         } else if (qName.equals("way")) {
-            /* We encountered a new <way...> tag. */
-            activeState = "way";
-//            System.out.println("Beginning a way...");
-        } else if (activeState.equals("way") && qName.equals("nd")) {
-            /* While looking at a way, we found a <nd...> tag. */
-            //System.out.println("Id of a node in this way: " + attributes.getValue("ref"));
 
-            /* TODO Use the above id to make "possible" connections between the nodes in this way */
-            /* Hint1: It would be useful to remember what was the last node in this way. */
-            /* Hint2: Not all ways are valid. So, directly connecting the nodes here would be
-            cumbersome since you might have to remove the connections if you later see a tag that
-            makes this way invalid. Instead, think of keeping a list of possible connections and
-            remember whether this way is valid or not. */
+            activeState = "way";
+            nodesOnWay = new HashMap<>();
+            index = 0;
+
+        } else if (activeState.equals("way") && qName.equals("nd")) {
+
+            index++;
+            nodesOnWay.put(index, Long.valueOf(attributes.getValue("ref")));
 
         } else if (activeState.equals("way") && qName.equals("tag")) {
-            /* While looking at a way, we found a <tag...> tag. */
             String k = attributes.getValue("k");
             String v = attributes.getValue("v");
             if (k.equals("maxspeed")) {
-                //System.out.println("Max Speed: " + v);
-                /* TODO set the max speed of the "current way" here. */
+                //waySpeed = Integer.valueOf(p.matcher(v).replaceAll("").trim());
             } else if (k.equals("highway")) {
-                //System.out.println("Highway type: " + v);
-                /* TODO Figure out whether this way and its connections are valid. */
-                /* Hint: Setting a "flag" is good enough! */
+                if (ALLOWED_HIGHWAY_TYPES.contains(v)) {
+                    flag = 1;
+                }
             } else if (k.equals("name")) {
-                //System.out.println("Way Name: " + v);
+                wayName = v;
             }
-//            System.out.println("Tag with k=" + k + ", v=" + v + ".");
         } else if (activeState.equals("node") && qName.equals("tag") && attributes.getValue("k")
                 .equals("name")) {
             /* While looking at a node, we found a <tag...> with k="name". */
@@ -130,10 +130,23 @@ public class GraphBuildingHandler extends DefaultHandler {
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
         if (qName.equals("way")) {
-            /* We are done looking at a way. (We finished looking at the nodes, speeds, etc...)*/
-            /* Hint1: If you have stored the possible connections for this way, here's your
-            chance to actually connect the nodes together if the way is valid. */
-//            System.out.println("Finishing a way...");
+            if (flag == 1) {
+                int k = 1;
+                for (Integer indices : nodesOnWay.keySet()) {
+                    if (k == nodesOnWay.size()) {
+                        break;
+                    }
+                    k++;
+                    double dis = GraphDB.distance(g.nodes.get(nodesOnWay.get(indices)).getLon(),g.nodes.get(nodesOnWay.get(indices)).getLon()
+                    , g.nodes.get(nodesOnWay.get(indices + 1)).getLon(), g.nodes.get(nodesOnWay.get(indices + 1)).getLat());
+
+                    g.nodes.get(nodesOnWay.get(indices)).addNeighbor(g.nodes.get(nodesOnWay.get(indices + 1)),dis);
+                    g.nodes.get(nodesOnWay.get(indices + 1)).addNeighbor(g.nodes.get(nodesOnWay.get(indices)),dis);
+                    Edge e = new Edge(g.nodes.get(nodesOnWay.get(indices)), g.nodes.get(nodesOnWay.get(indices + 1)), wayName);
+                }
+                wayName = "";
+                flag = 0;
+            }
         }
     }
 
