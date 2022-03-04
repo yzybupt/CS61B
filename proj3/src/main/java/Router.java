@@ -77,10 +77,8 @@ public class Router {
        //System.out.println(dest.getId());
         //System.out.println(start.getId());
         //开始进行Dij寻找
-        if (fringe.isEmpty()) {
-            return null;
-        } else {
-            Dij(fringe.poll(), g, dest.getId());
+
+            Dij(g, dest.getId());
             LinkedList<Long> path = new LinkedList<>();
             Long temp = dest.getId();
             path.addFirst(temp);
@@ -95,30 +93,30 @@ public class Router {
                 }
             }
 
-
-
             return path;
-        }
+
     }
 
-    private static void Dij(RoutingNode parent, GraphDB g, long dest) {
-        if (parent.getId() == dest) {
-            return;
-        }
-        for (Node neighbor : g.nodes.get(parent.getId()).getNeighbor()) {
-            if (fringe.contains(id2RoutingNode.get(neighbor.getId()))) {
-                double dis = parent.getDistanceToOrigin() + g.distance(parent.getId(), neighbor.getId()) + g.distance(dest,neighbor.getId());
-                if(id2RoutingNode.get(neighbor.getId()).getDistanceToOrigin() > dis) {
-                    fringe.remove(id2RoutingNode.get(neighbor.getId()));
-                    id2RoutingNode.get(neighbor.getId()).setDistanceToOrigin(dis);
-                    fringe.add(id2RoutingNode.get(neighbor.getId()));
-                    edgeFrom.put(neighbor.getId(), parent.getId());
+    private static void Dij(GraphDB g, long dest) {
+        while (!fringe.isEmpty()) {
+            RoutingNode parent = fringe.poll();
+            if (parent.getId() == dest) {
+                return;
+            }
+            for (Node neighbor : g.nodes.get(parent.getId()).getNeighbor()) {
+                if (fringe.contains(id2RoutingNode.get(neighbor.getId()))) {
+                    double dis = parent.getDistanceToOrigin() + g.distance(parent.getId(), neighbor.getId());
+                    if(id2RoutingNode.get(neighbor.getId()).getDistanceToOrigin() > dis) {
+                        fringe.remove(id2RoutingNode.get(neighbor.getId()));
+                        id2RoutingNode.get(neighbor.getId()).setDistanceToOrigin(dis);
+                        fringe.add(id2RoutingNode.get(neighbor.getId()));
+                        edgeFrom.put(neighbor.getId(), parent.getId());
+                    }
                 }
             }
         }
-        if (!fringe.isEmpty()) {
-            Dij(fringe.poll(), g, dest);
-        }
+
+
     }
 
 
