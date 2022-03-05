@@ -3,9 +3,11 @@ import java.util.Objects;
 public class RoutingNode {
     private long id;
     private double distanceToOrigin;
+    private double distanceToDest;
 
-    public RoutingNode (long id, double dis) {
+    public RoutingNode (long id, double dis, double dis2) {
         this.id = id;
+        this.distanceToDest = dis2;
         this.distanceToOrigin = dis;
     }
 
@@ -20,6 +22,15 @@ public class RoutingNode {
     public void setDistanceToOrigin(double a) {
         distanceToOrigin = a;
     }
+
+    public double getDistanceToDest() {
+        return distanceToDest;
+    }
+
+    public void setDistanceToDest(double a) {
+        distanceToDest = a;
+    }
+
 
     @Override
     public boolean equals(Object o) {

@@ -21,9 +21,9 @@ public class Router {
     static Comparator<RoutingNode> comp = new Comparator<RoutingNode>() {
         @Override
         public int compare(RoutingNode o1, RoutingNode o2) {
-            if(o1.getDistanceToOrigin() > o2.getDistanceToOrigin()){
+            if(o1.getDistanceToOrigin() + o1.getDistanceToDest() > o2.getDistanceToOrigin() + o2.getDistanceToDest()){
                 return 1;
-            } else if (o1.getDistanceToOrigin() < o2.getDistanceToOrigin()) {
+            } else if (o1.getDistanceToOrigin() + o1.getDistanceToDest()< o2.getDistanceToOrigin() + o2.getDistanceToDest()) {
                 return -1;
             } else {
                 return 0;
@@ -53,8 +53,8 @@ public class Router {
 
         Node startNode = closetNode(g, stlon, stlat);
         Node destNode = closetNode(g, destlon, destlat);
-        RoutingNode start = new RoutingNode(startNode.getId(), 0);
-        RoutingNode dest = new RoutingNode(destNode.getId(), inf);
+        RoutingNode start = new RoutingNode(startNode.getId(), 0, g.distance(startNode.getId(), destNode.getId()));
+        RoutingNode dest = new RoutingNode(destNode.getId(), inf, 0);
         fringe.add(start);
         fringe.add(dest);
         edgeFrom.put(start.getId(), Long.MIN_VALUE);
@@ -66,7 +66,7 @@ public class Router {
 
         for (Long ids : g.vertices()) {
             if (ids != start.getId() && ids != dest.getId()) {
-                RoutingNode temp = new RoutingNode(g.nodes.get(ids).getId(), inf);
+                RoutingNode temp = new RoutingNode(g.nodes.get(ids).getId(), inf, g.distance(ids, dest.getId()));
                 fringe.add(temp);
                 edgeFrom.put(temp.getId(), Long.MIN_VALUE);
                 id2RoutingNode.put(temp.getId(), temp);
@@ -106,10 +106,11 @@ public class Router {
             for (Node neighbor : g.nodes.get(parent.getId()).getNeighbor()) {
                 if (fringe.contains(id2RoutingNode.get(neighbor.getId()))) {
                     double dis = parent.getDistanceToOrigin() + g.distance(parent.getId(), neighbor.getId());
-                    if(id2RoutingNode.get(neighbor.getId()).getDistanceToOrigin() > dis) {
-                        fringe.remove(id2RoutingNode.get(neighbor.getId()));
-                        id2RoutingNode.get(neighbor.getId()).setDistanceToOrigin(dis);
-                        fringe.add(id2RoutingNode.get(neighbor.getId()));
+                    RoutingNode k = id2RoutingNode.get(neighbor.getId());
+                    if(k.getDistanceToOrigin() > dis) {
+                        fringe.remove(k);
+                        k.setDistanceToOrigin(dis);
+                        fringe.add(k);
                         edgeFrom.put(neighbor.getId(), parent.getId());
                     }
                 }
