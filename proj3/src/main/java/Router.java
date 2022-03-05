@@ -15,15 +15,17 @@ import java.util.LinkedList;
  * down to the priority you use to order your vertices.
  */
 public class Router {
-    private static final double inf = Double.MAX_VALUE;
+    private static final double INF = Double.MAX_VALUE;
     static ConcurrentHashMap<Long, Long> edgeFrom;
     static ConcurrentHashMap<Long, RoutingNode> id2RoutingNode;
     static Comparator<RoutingNode> comp = new Comparator<RoutingNode>() {
         @Override
         public int compare(RoutingNode o1, RoutingNode o2) {
-            if(o1.getDistanceToOrigin() + o1.getDistanceToDest() > o2.getDistanceToOrigin() + o2.getDistanceToDest()){
+            if (o1.getDistanceToOrigin() + o1.getDistanceToDest() > o2.getDistanceToOrigin()
+                    + o2.getDistanceToDest()) {
                 return 1;
-            } else if (o1.getDistanceToOrigin() + o1.getDistanceToDest()< o2.getDistanceToOrigin() + o2.getDistanceToDest()) {
+            } else if (o1.getDistanceToOrigin() + o1.getDistanceToDest()
+                    < o2.getDistanceToOrigin() + o2.getDistanceToDest()) {
                 return -1;
             } else {
                 return 0;
@@ -53,8 +55,9 @@ public class Router {
 
         Node startNode = closetNode(g, stlon, stlat);
         Node destNode = closetNode(g, destlon, destlat);
-        RoutingNode start = new RoutingNode(startNode.getId(), 0, g.distance(startNode.getId(), destNode.getId()));
-        RoutingNode dest = new RoutingNode(destNode.getId(), inf, 0);
+        RoutingNode start = new RoutingNode(startNode.getId(),
+                0, g.distance(startNode.getId(), destNode.getId()));
+        RoutingNode dest = new RoutingNode(destNode.getId(), INF, INF);
         fringe.add(start);
         fringe.add(dest);
         //edgeFrom.put(start.getId(), Long.MIN_VALUE);
@@ -66,7 +69,7 @@ public class Router {
 
         for (Long ids : g.vertices()) {
             if (ids != start.getId() && ids != dest.getId()) {
-                RoutingNode temp = new RoutingNode(g.nodes.get(ids).getId(), inf, g.distance(ids, dest.getId()));
+                RoutingNode temp = new RoutingNode(g.nodes.get(ids).getId(), INF, INF);
                 fringe.add(temp);
                 //edgeFrom.put(temp.getId(), Long.MIN_VALUE);
                 id2RoutingNode.put(temp.getId(), temp);
@@ -78,30 +81,30 @@ public class Router {
         //System.out.println(start.getId());
         //开始进行Dij寻找
 
-            Dij(g, dest.getId());
-            if (edgeFrom.isEmpty()) {
-                return null;
-            } else {
-                LinkedList<Long> path = new LinkedList<>();
-                Long temp = dest.getId();
-                path.addFirst(temp);
-                while (!edgeFrom.isEmpty()) {
-                    if (edgeFrom.get(temp) != start.getId()) {
-                        temp = edgeFrom.get(temp);
-                        path.addFirst(temp);
-                    } else {
-                        temp = edgeFrom.get(temp);
-                        path.addFirst(temp);
-                        break;
-                    }
+        dij(g, dest.getId());
+        if (edgeFrom.isEmpty()) {
+            return null;
+        } else {
+            LinkedList<Long> path = new LinkedList<>();
+            Long temp = dest.getId();
+            path.addFirst(temp);
+            while (!edgeFrom.isEmpty()) {
+                if (edgeFrom.get(temp) != start.getId()) {
+                    temp = edgeFrom.get(temp);
+                    path.addFirst(temp);
+                } else {
+                    temp = edgeFrom.get(temp);
+                    path.addFirst(temp);
+                    break;
                 }
-
-                return path;
             }
+
+            return path;
+        }
 
     }
 
-    private static void Dij(GraphDB g, long dest) {
+    private static void dij(GraphDB g, long dest) {
         while (!fringe.isEmpty()) {
             RoutingNode parent = fringe.poll();
             if (parent.getId() == dest) {
@@ -109,11 +112,13 @@ public class Router {
             }
             for (Node neighbor : g.nodes.get(parent.getId()).getNeighbor()) {
                 if (fringe.contains(id2RoutingNode.get(neighbor.getId()))) {
-                    double dis = parent.getDistanceToOrigin() + g.distance(parent.getId(), neighbor.getId());
+                    double dis = parent.getDistanceToOrigin() + g.distance(parent.getId(),
+                            neighbor.getId());
                     RoutingNode k = id2RoutingNode.get(neighbor.getId());
-                    if(k.getDistanceToOrigin() > dis) {
+                    if (k.getDistanceToOrigin() > dis) {
                         fringe.remove(k);
                         k.setDistanceToOrigin(dis);
+                        k.setDistanceToDest(g.distance(k.getId(), dest));
                         fringe.add(k);
                         edgeFrom.put(neighbor.getId(), parent.getId());
                     }
@@ -269,7 +274,8 @@ public class Router {
                 distance = GraphDB.distance(lon, lat, closet.getLon(), closet.getLat());
                 i = 1;
             } else {
-                double temp = GraphDB.distance(lon, lat, db.nodes.get(id).getLon(), db.nodes.get(id).getLat());
+                double temp = GraphDB.distance(lon, lat, db.nodes.get(id).getLon(),
+                        db.nodes.get(id).getLat());
                 if (temp < distance) {
                     closet = db.nodes.get(id);
                     distance = temp;
