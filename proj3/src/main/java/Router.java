@@ -57,8 +57,8 @@ public class Router {
         RoutingNode dest = new RoutingNode(destNode.getId(), inf, 0);
         fringe.add(start);
         fringe.add(dest);
-        edgeFrom.put(start.getId(), Long.MIN_VALUE);
-        edgeFrom.put(dest.getId(), Long.MIN_VALUE);
+        //edgeFrom.put(start.getId(), Long.MIN_VALUE);
+        //edgeFrom.put(dest.getId(), Long.MIN_VALUE);
         id2RoutingNode.put(start.getId(), start);
         id2RoutingNode.put(dest.getId(), dest);
 
@@ -68,7 +68,7 @@ public class Router {
             if (ids != start.getId() && ids != dest.getId()) {
                 RoutingNode temp = new RoutingNode(g.nodes.get(ids).getId(), inf, g.distance(ids, dest.getId()));
                 fringe.add(temp);
-                edgeFrom.put(temp.getId(), Long.MIN_VALUE);
+                //edgeFrom.put(temp.getId(), Long.MIN_VALUE);
                 id2RoutingNode.put(temp.getId(), temp);
             }
         }
@@ -79,21 +79,25 @@ public class Router {
         //开始进行Dij寻找
 
             Dij(g, dest.getId());
-            LinkedList<Long> path = new LinkedList<>();
-            Long temp = dest.getId();
-            path.addFirst(temp);
-            while (true) {
-                if (edgeFrom.get(temp) != start.getId()) {
-                    temp = edgeFrom.get(temp);
-                    path.addFirst(temp);
-                } else {
-                    temp = edgeFrom.get(temp);
-                    path.addFirst(temp);
-                    break;
+            if (edgeFrom.isEmpty()) {
+                return null;
+            } else {
+                LinkedList<Long> path = new LinkedList<>();
+                Long temp = dest.getId();
+                path.addFirst(temp);
+                while (!edgeFrom.isEmpty()) {
+                    if (edgeFrom.get(temp) != start.getId()) {
+                        temp = edgeFrom.get(temp);
+                        path.addFirst(temp);
+                    } else {
+                        temp = edgeFrom.get(temp);
+                        path.addFirst(temp);
+                        break;
+                    }
                 }
-            }
 
-            return path;
+                return path;
+            }
 
     }
 
