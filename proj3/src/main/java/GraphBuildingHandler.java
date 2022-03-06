@@ -142,7 +142,6 @@ public class GraphBuildingHandler extends DefaultHandler {
 
                     g.nodes.get(nodesOnWay.get(indices)).addNeighbor(g.nodes.get(nodesOnWay.get(indices + 1)),dis);
                     g.nodes.get(nodesOnWay.get(indices + 1)).addNeighbor(g.nodes.get(nodesOnWay.get(indices)),dis);
-                    Edge e = new Edge(g.nodes.get(nodesOnWay.get(indices)), g.nodes.get(nodesOnWay.get(indices + 1)), wayName);
                 }
                 wayName = "";
                 flag = 0;

@@ -1,5 +1,4 @@
 import org.xml.sax.SAXException;
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import java.io.File;
@@ -26,7 +25,6 @@ public class GraphDB {
     /** Your instance variables for storing the graph. You should consider
      * creating helper classes, e.g. Node, Edge, etc. */
     ConcurrentHashMap<Long, Node> nodes;
-    ArrayList<Edge> edges;
 
 
     /**
@@ -36,7 +34,6 @@ public class GraphDB {
      */
     public GraphDB(String dbPath) {
         nodes = new ConcurrentHashMap<>();
-        edges = new ArrayList<>();
         try {
             File inputFile = new File(dbPath);
             FileInputStream inputStream = new FileInputStream(inputFile);
@@ -86,6 +83,10 @@ public class GraphDB {
             temp.add(k);
         }
         return temp;
+    }
+
+    public int numberOfNodes(){
+        return nodes.size();
     }
 
     /**

@@ -1,11 +1,9 @@
-import java.util.Comparator;
-import java.util.PriorityQueue;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.LinkedList;
+import java.util.HashMap;
+
 /**
  * This class provides a shortestPath method for finding routes between two points
  * on the map. Start by using Dijkstra's, and if your code isn't fast enough for your
@@ -15,24 +13,12 @@ import java.util.LinkedList;
  * down to the priority you use to order your vertices.
  */
 public class Router {
-    private static final double INF = Double.MAX_VALUE;
-    static ConcurrentHashMap<Long, Long> edgeFrom;
-    static ConcurrentHashMap<Long, RoutingNode> id2RoutingNode;
-    static Comparator<RoutingNode> comp = new Comparator<RoutingNode>() {
-        @Override
-        public int compare(RoutingNode o1, RoutingNode o2) {
-            if (o1.getDistanceToOrigin() + o1.getDistanceToDest() > o2.getDistanceToOrigin()
-                    + o2.getDistanceToDest()) {
-                return 1;
-            } else if (o1.getDistanceToOrigin() + o1.getDistanceToDest()
-                    < o2.getDistanceToOrigin() + o2.getDistanceToDest()) {
-                return -1;
-            } else {
-                return 0;
-            }
-        }
-    };
-    static PriorityQueue<RoutingNode> fringe;
+    private static final double inf = Double.MAX_VALUE;
+    static HashMap<Long, Long> edgeFrom;
+    static HashMap<Long, RoutingNode> id2RoutingNode;
+    static HashMap<RoutingNode, Integer> RoutingNode2Index;
+    static HashSet<RoutingNode> marked;
+    static IndexMinPQ<RoutingNode> fringe;
 
     /**
      * Return a List of longs representing the shortest path from the node
@@ -47,41 +33,46 @@ public class Router {
      */
     public static List<Long> shortestPath(GraphDB g, double stlon, double stlat,
                                           double destlon, double destlat) {
-        edgeFrom = new ConcurrentHashMap<>();
-        fringe = new PriorityQueue<>(comp);
-        id2RoutingNode = new ConcurrentHashMap<>();
+        edgeFrom = new HashMap<>();
+        fringe = new IndexMinPQ<>(g.numberOfNodes());
+        id2RoutingNode = new HashMap<>();
+        marked = new HashSet();
+        RoutingNode2Index= new HashMap<>();
         //完成空fringe的构建 空marked 空edgeFrom的建构
 
 
         Node startNode = closetNode(g, stlon, stlat);
         Node destNode = closetNode(g, destlon, destlat);
-        RoutingNode start = new RoutingNode(startNode.getId(),
-                0, g.distance(startNode.getId(), destNode.getId()));
-        RoutingNode dest = new RoutingNode(destNode.getId(), INF, INF);
-        fringe.add(start);
-        fringe.add(dest);
+        RoutingNode start = new RoutingNode(startNode.getId(), 0, g.distance(startNode.getId(), destNode.getId()));
+        RoutingNode dest = new RoutingNode(destNode.getId(), inf, 0);
+        fringe.insert(0, start);
+        fringe.insert(1, dest);
+        RoutingNode2Index.put(start, 0);
+        RoutingNode2Index.put(dest, 1);
         //edgeFrom.put(start.getId(), Long.MIN_VALUE);
         //edgeFrom.put(dest.getId(), Long.MIN_VALUE);
         id2RoutingNode.put(start.getId(), start);
         id2RoutingNode.put(dest.getId(), dest);
 
 
-
+        int i = 2;
         for (Long ids : g.vertices()) {
             if (ids != start.getId() && ids != dest.getId()) {
-                RoutingNode temp = new RoutingNode(g.nodes.get(ids).getId(), INF, INF);
-                fringe.add(temp);
+                RoutingNode temp = new RoutingNode(g.nodes.get(ids).getId(), inf, g.distance(ids, dest.getId()));
+                fringe.insert(i, temp);
+                RoutingNode2Index.put(temp, i);
+                i++;
                 //edgeFrom.put(temp.getId(), Long.MIN_VALUE);
                 id2RoutingNode.put(temp.getId(), temp);
             }
         }
         //完成fringe的填充
 
-       //System.out.println(dest.getId());
+        //System.out.println(dest.getId());
         //System.out.println(start.getId());
         //开始进行Dij寻找
 
-        dij(g, dest.getId());
+        Dij(g, dest.getId());
         if (edgeFrom.isEmpty()) {
             return null;
         } else {
@@ -104,22 +95,22 @@ public class Router {
 
     }
 
-    private static void dij(GraphDB g, long dest) {
+    private static void Dij(GraphDB g, long dest) {
         while (!fringe.isEmpty()) {
-            RoutingNode parent = fringe.poll();
+            RoutingNode parent = fringe.minKey();
+            fringe.delMin();
             if (parent.getId() == dest) {
                 return;
             }
+            marked.add(parent);
             for (Node neighbor : g.nodes.get(parent.getId()).getNeighbor()) {
-                if (fringe.contains(id2RoutingNode.get(neighbor.getId()))) {
-                    double dis = parent.getDistanceToOrigin() + g.distance(parent.getId(),
-                            neighbor.getId());
+                if (!marked.contains(id2RoutingNode.get(neighbor.getId()))) {
+                    double dis = parent.getDistanceToOrigin() + g.distance(parent.getId(), neighbor.getId());
                     RoutingNode k = id2RoutingNode.get(neighbor.getId());
-                    if (k.getDistanceToOrigin() > dis) {
-                        fringe.remove(k);
-                        k.setDistanceToOrigin(dis);
-                        k.setDistanceToDest(g.distance(k.getId(), dest));
-                        fringe.add(k);
+                    if(k.getDistanceToOrigin() > dis) {
+                        RoutingNode k1 = new RoutingNode(k.getId(), dis, k.getDistanceToDest());
+                        RoutingNode2Index.put(k1, RoutingNode2Index.get(k));
+                        fringe.decreaseKey(RoutingNode2Index.get(k1), k1); //sink!!
                         edgeFrom.put(neighbor.getId(), parent.getId());
                     }
                 }
@@ -167,7 +158,7 @@ public class Router {
 
         /** Default name for an unknown way. */
         public static final String UNKNOWN_ROAD = "unknown road";
-        
+
         /** Static initializer. */
         static {
             DIRECTIONS[START] = "Start";
@@ -251,8 +242,8 @@ public class Router {
         public boolean equals(Object o) {
             if (o instanceof NavigationDirection) {
                 return direction == ((NavigationDirection) o).direction
-                    && way.equals(((NavigationDirection) o).way)
-                    && distance == ((NavigationDirection) o).distance;
+                        && way.equals(((NavigationDirection) o).way)
+                        && distance == ((NavigationDirection) o).distance;
             }
             return false;
         }
@@ -274,8 +265,7 @@ public class Router {
                 distance = GraphDB.distance(lon, lat, closet.getLon(), closet.getLat());
                 i = 1;
             } else {
-                double temp = GraphDB.distance(lon, lat, db.nodes.get(id).getLon(),
-                        db.nodes.get(id).getLat());
+                double temp = GraphDB.distance(lon, lat, db.nodes.get(id).getLon(), db.nodes.get(id).getLat());
                 if (temp < distance) {
                     closet = db.nodes.get(id);
                     distance = temp;
