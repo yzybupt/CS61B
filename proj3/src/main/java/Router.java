@@ -36,7 +36,6 @@ public class Router {
                                           double destlon, double destlat) {
         edgeFrom = new HashMap<>();
         fringe = new IndexMinPQ<Double>(g.numberOfNodes());
-        System.out.println("there are " + g.numberOfNodes());
         nodeid2distance2origin = new HashMap<>();
         value2nodeid = new HashMap<>();
         nodeid2value = new HashMap<>();
@@ -107,7 +106,7 @@ public class Router {
                     double dis = nodeid2distance2origin.get(parent) + g.distance(parent, neighbourId);
                     if(nodeid2distance2origin.get(neighbourId) > dis) {
                         nodeid2distance2origin.put(neighbourId, dis);
-                        fringe.decreaseKey(neighbourIndex, dis);
+                        fringe.decreaseKey(neighbourIndex, dis + g.distance(neighbourId, dest));
                         edgeFrom.put(neighbourId, parent);
                     }
                 }
