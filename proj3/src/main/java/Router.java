@@ -1,9 +1,9 @@
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.HashMap;
-
+import java.util.LinkedList;
 /**
  * This class provides a shortestPath method for finding routes between two points
  * on the map. Start by using Dijkstra's, and if your code isn't fast enough for your
@@ -15,10 +15,11 @@ import java.util.HashMap;
 public class Router {
     private static final double inf = Double.MAX_VALUE;
     static HashMap<Long, Long> edgeFrom;
-    static HashMap<Long, RoutingNode> id2RoutingNode;
-    static HashMap<RoutingNode, Integer> RoutingNode2Index;
-    static HashSet<RoutingNode> marked;
-    static IndexMinPQ<RoutingNode> fringe;
+    static HashMap<Long, Double> nodeid2distance2origin;
+    static HashMap<Integer, Long> value2nodeid;
+    static HashMap<Long, Integer> nodeid2value;
+
+    static IndexMinPQ<Double> fringe;
 
     /**
      * Return a List of longs representing the shortest path from the node
@@ -34,53 +35,50 @@ public class Router {
     public static List<Long> shortestPath(GraphDB g, double stlon, double stlat,
                                           double destlon, double destlat) {
         edgeFrom = new HashMap<>();
-        fringe = new IndexMinPQ<>(g.numberOfNodes());
-        id2RoutingNode = new HashMap<>();
-        marked = new HashSet();
-        RoutingNode2Index= new HashMap<>();
-        //完成空fringe的构建 空marked 空edgeFrom的建构
+        fringe = new IndexMinPQ<Double>(g.numberOfNodes());
+        nodeid2distance2origin = new HashMap<>();
+        value2nodeid = new HashMap<>();
+        nodeid2value = new HashMap<>();
+        //完成空fringe的构建 空edgeFrom的建构
 
 
         Node startNode = closetNode(g, stlon, stlat);
         Node destNode = closetNode(g, destlon, destlat);
-        RoutingNode start = new RoutingNode(startNode.getId(), 0, g.distance(startNode.getId(), destNode.getId()));
-        RoutingNode dest = new RoutingNode(destNode.getId(), inf, 0);
-        fringe.insert(0, start);
-        fringe.insert(1, dest);
-        RoutingNode2Index.put(start, 0);
-        RoutingNode2Index.put(dest, 1);
-        //edgeFrom.put(start.getId(), Long.MIN_VALUE);
-        //edgeFrom.put(dest.getId(), Long.MIN_VALUE);
-        id2RoutingNode.put(start.getId(), start);
-        id2RoutingNode.put(dest.getId(), dest);
+        nodeid2distance2origin.put(startNode.getId(), 0.0);
+        value2nodeid.put(0,startNode.getId());
+        nodeid2value.put(startNode.getId(), 0);
+        fringe.insert(0, 0.0);
+
+
+        nodeid2distance2origin.put(destNode.getId(), inf);
+        value2nodeid.put(1, destNode.getId());
+        nodeid2value.put(destNode.getId(), 1);
+        fringe.insert(1, inf);
 
 
         int i = 2;
         for (Long ids : g.vertices()) {
-            if (ids != start.getId() && ids != dest.getId()) {
-                RoutingNode temp = new RoutingNode(g.nodes.get(ids).getId(), inf, g.distance(ids, dest.getId()));
-                fringe.insert(i, temp);
-                RoutingNode2Index.put(temp, i);
+            if (ids != startNode.getId() && ids != destNode.getId()) {
+                nodeid2distance2origin.put(ids, inf);   //NodeId---->priority
+                value2nodeid.put(i, ids); //fringeIndx -----> NodeId
+                nodeid2value.put(ids, i);
+                fringe.insert(i, inf);   //Index ------>priority
                 i++;
-                //edgeFrom.put(temp.getId(), Long.MIN_VALUE);
-                id2RoutingNode.put(temp.getId(), temp);
             }
         }
         //完成fringe的填充
 
-        //System.out.println(dest.getId());
-        //System.out.println(start.getId());
-        //开始进行Dij寻找
 
-        Dij(g, dest.getId());
+        //开始进行Dij寻找
+        Dij(g, destNode.getId());
         if (edgeFrom.isEmpty()) {
             return null;
         } else {
             LinkedList<Long> path = new LinkedList<>();
-            Long temp = dest.getId();
+            Long temp = destNode.getId();
             path.addFirst(temp);
             while (!edgeFrom.isEmpty()) {
-                if (edgeFrom.get(temp) != start.getId()) {
+                if (edgeFrom.get(temp) != startNode.getId()) {
                     temp = edgeFrom.get(temp);
                     path.addFirst(temp);
                 } else {
@@ -97,21 +95,19 @@ public class Router {
 
     private static void Dij(GraphDB g, long dest) {
         while (!fringe.isEmpty()) {
-            RoutingNode parent = fringe.minKey();
-            fringe.delMin();
-            if (parent.getId() == dest) {
+            long parent = value2nodeid.get(fringe.delMin()); // parent is id of node
+            if (parent == dest) {
                 return;
             }
-            marked.add(parent);
-            for (Node neighbor : g.nodes.get(parent.getId()).getNeighbor()) {
-                if (!marked.contains(id2RoutingNode.get(neighbor.getId()))) {
-                    double dis = parent.getDistanceToOrigin() + g.distance(parent.getId(), neighbor.getId());
-                    RoutingNode k = id2RoutingNode.get(neighbor.getId());
-                    if(k.getDistanceToOrigin() > dis) {
-                        RoutingNode k1 = new RoutingNode(k.getId(), dis, k.getDistanceToDest());
-                        RoutingNode2Index.put(k1, RoutingNode2Index.get(k));
-                        fringe.decreaseKey(RoutingNode2Index.get(k1), k1); //sink!!
-                        edgeFrom.put(neighbor.getId(), parent.getId());
+            for (Node neighbor : g.nodes.get(parent).getNeighbor()) {
+                Long neighbourId = neighbor.getId(); //NodeID of neighbour node
+                int neighbourIndex = nodeid2value.get(neighbor.getId()); //Index in fringe of neighbour node
+                if (fringe.contains(neighbourIndex)) {
+                    double dis = nodeid2distance2origin.get(parent) + g.distance(parent, neighbourId);
+                    if(nodeid2distance2origin.get(neighbourId) > dis) {
+                        nodeid2distance2origin.put(neighbourId, dis);
+                        fringe.decreaseKey(neighbourIndex, dis);
+                        edgeFrom.put(neighbourId, parent);
                     }
                 }
             }
