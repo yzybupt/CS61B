@@ -36,6 +36,7 @@ public class Router {
                                           double destlon, double destlat) {
         edgeFrom = new HashMap<>();
         fringe = new IndexMinPQ<Double>(g.numberOfNodes());
+        System.out.println("there are " + g.numberOfNodes());
         nodeid2distance2origin = new HashMap<>();
         value2nodeid = new HashMap<>();
         nodeid2value = new HashMap<>();
