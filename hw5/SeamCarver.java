@@ -7,7 +7,7 @@ public class SeamCarver {
     private double[][] energyMatrix; // dependent
 
     public SeamCarver(Picture picture) {
-        this.picture = picture;
+        this.picture = new Picture(picture);
         setEnergyMatrix();
     }
 
@@ -160,12 +160,13 @@ public class SeamCarver {
     }
 
     private int xIndexRounding(int x) {
+        //System.out.println(width() + (x % width()));
         if (x >= 0 && x <= width() - 1) {
             return x;
         } else if (x < 0) {
-            return width() + (x % width());
+            return width() - 1;
         } else {
-            return x % width();
+            return 0;
         }
     }
 
@@ -173,9 +174,9 @@ public class SeamCarver {
         if (y >= 0 && y <= height() - 1) {
             return y;
         } else if (y < 0) {
-            return height() + (y % height());
+            return height() - 1;
         } else {
-            return y % height();
+            return 0;
         }
     }
 
