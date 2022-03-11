@@ -18,6 +18,9 @@ public class ShowSeams {
     private static void showHorizontalSeam(SeamCarver sc) {
         Picture ep = SCUtility.toEnergyPicture(sc);
         int[] horizontalSeam = sc.findHorizontalSeam();
+        /*for(int i : horizontalSeam) {
+            System.out.println(i);
+        }*/
         Picture epOverlay = SCUtility.seamOverlay(ep, true, horizontalSeam);
         epOverlay.show();
     }
