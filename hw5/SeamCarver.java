@@ -1,156 +1,256 @@
-import java.awt.Color;
-
 import edu.princeton.cs.algs4.Picture;
 
+import java.awt.*;
+
 public class SeamCarver {
-    private Picture picture;
-    private int width;
-    private int height;
-    private boolean isVertical = true;
+    private Picture picture; // dependent
+    private double[][] energyMatrix; // dependent
 
     public SeamCarver(Picture picture) {
-        this.picture = new Picture(picture);
-        this.width = picture.width();
-        this.height = picture.height();
+        this.picture = picture;
+        setEnergyMatrix();
     }
 
-    // current picture
-    public Picture picture() {
-        return new Picture(picture);
+
+    public Picture picture() { // current picture
+        return this.picture;
     }
 
-    // width of current picture
-    public int width() {
-        return width;
+
+    public int width() {  // width of current picture
+        return picture.width();
     }
 
-    // height of current picture
-    public int height() {
-        return height;
+
+    public int height() {  // height of current picture
+        return picture.height();
     }
 
-    // energy of pixel at column x and row y
-    public double energy(int x, int y) {
-        Color up, down, left, right;
-        if (isVertical) {
-            up = y > 0 ? picture.get(x, y - 1) : picture.get(x, height - 1);
-            down = y < height - 1 ? picture.get(x, y + 1) : picture.get(x, 0);
-            left = x > 0 ? picture.get(x - 1, y) : picture.get(width - 1, y);
-            right = x < width - 1 ? picture.get(x + 1, y) : picture.get(0, y);
-        } else {
-            up = x > 0 ? picture.get(x - 1, y) : picture.get(height - 1, y);
-            down = x < height - 1 ? picture.get(x + 1, y) : picture.get(0, y);
-            left = y > 0 ? picture.get(x, y - 1) : picture.get(x, width - 1);
-            right = y < width - 1 ? picture.get(x, y + 1) : picture.get(x, 0);
+
+    public double energy(int x, int y) { // energy of pixel at column x and row y
+        if (x < 0 || x >= width() || y < 0 || y >= height()) {
+            throw new java.lang.IndexOutOfBoundsException("The passed in argument is not within border");
         }
 
-        int rx = left.getRed() - right.getRed();
-        int gx = left.getGreen() - right.getGreen();
-        int bx = left.getBlue() - right.getBlue();
-        int ry = up.getRed() - down.getRed();
-        int gy = up.getGreen() - down.getGreen();
-        int by = up.getBlue() - down.getBlue();
+        Color rgbleft = picture.get(xIndexRounding(x - 1), yIndexRounding(y));
+        int r1 = rgbleft.getRed();
+        int g1 = rgbleft.getGreen();
+        int b1 = rgbleft.getBlue();
 
-        return rx * rx + gx * gx + bx * bx + ry * ry + gy * gy + by * by;
+
+        Color rgbright = picture.get(xIndexRounding(x + 1), yIndexRounding(y));
+        int r2 = rgbright.getRed();
+        int g2 = rgbright.getGreen();
+        int b2 = rgbright.getBlue();
+
+        double xEnergy = (r1-r2) * (r1 - r2) + (g1-g2) * (g1 - g2) + (b1 - b2) * (b1 - b2);
+
+        Color rgbup = picture.get(xIndexRounding(x), yIndexRounding(y - 1));
+        r1 = rgbup.getRed();
+        g1 = rgbup.getGreen();
+        b1 = rgbup.getBlue();
+
+
+        Color rgbdown = picture.get(xIndexRounding(x), yIndexRounding(y + 1));
+        r2 = rgbdown.getRed();
+        g2 = rgbdown.getGreen();
+        b2 = rgbdown.getBlue();
+
+        double yEnergy = (r1-r2) * (r1 - r2) + (g1-g2) * (g1 - g2) + (b1 - b2) * (b1 - b2);
+
+        return xEnergy + yEnergy;
     }
 
-    // sequence of indices for horizontal seam
-    public int[] findHorizontalSeam() {
-        isVertical = false;
-        swap();
-        int[] res = findVerticalSeam();
-        swap();
-        isVertical = true;
-        return res;
-    }
-
-    private void swap() {
-        int temp = width;
-        width = height;
-        height = temp;
-    }
-
-    // sequence of indices for vertical seam
-    public int[] findVerticalSeam() {
-        int[][] path = new int[width][height];
-        double[][] cost = new double[width][height];
-        for (int i = 0; i < width; i++) {
-            double e = isVertical ? energy(i, 0) : energy(0, i);
-            cost[i][0] = e;
-            path[i][height - 1] = i;
-        }
-
-        for (int j = 1; j < height; j++) {
-            for (int i = 0; i < width; i++) {
-                double e = isVertical ? energy(i, j) : energy(j, i);
-                cost[i][j] = e + getMinCost(i, j, path, cost);
+    public int[] findHorizontalSeam() {  // sequence of indices for horizontal seam
+        Picture transposePic = new Picture(height(),width());
+        transposePic.setOriginUpperLeft();
+        Color[] colors = new Color[height() * width()];
+        for (int i = 0; i < width(); i++) {
+            for (int j = height() - 1; j >= 0; j--) {
+                colors[i * height() + height() - 1 - j] = picture.get(i, j);
             }
         }
 
-        int[] res = new int[height];
-        double min = Double.MAX_VALUE;
-        int minPos = 0;
-        for (int i = 0; i < width; i++) {
-            if (cost[i][height - 1] < min) {
-                min = cost[i][height - 1];
-                minPos = i;
+
+        for (int j = 0; j < transposePic.height(); j++) {
+            for (int i = 0; i < transposePic.width(); i++) {
+                transposePic.set(i, j, colors[j * transposePic.width() + i]);
             }
         }
 
-        for (int j = height - 1; j >= 0; j--) {
-            res[j] = path[minPos][j];
-            minPos = res[j];
+        SeamCarver transposeSeam = new SeamCarver(transposePic);
+        int[] temp = transposeSeam.findVerticalSeam();
+        for (int i = 0; i < temp.length; i++) { // 修正一下因为右旋转所带来的坐标扭曲
+            temp[i] = transposePic.width() - 1 - temp[i];
         }
-        return res;
+        return temp;
     }
 
-    private double getMinCost(int i, int j, int[][] path, double[][] cost) {
-        double[] v = new double[3];
-        v[1] = cost[i][j - 1];
-        if (i > 0) {
-            v[0] = cost[i - 1][j - 1];
-        } else {
-            v[0] = Double.MAX_VALUE;
-        }
-        if (i < width - 1) {
-            v[2] = cost[i + 1][j - 1];
-        } else {
-            v[2] = Double.MAX_VALUE;
-        }
-        double res = Double.MAX_VALUE;
-        int pos = 0;
-        for (int m = 0; m < 3; m++) {
-            if (v[m] < res) {
-                res = v[m];
-                pos = m;
+    public int[] findVerticalSeam() { // sequence of indices for vertical seam
+        double[][] cumulatedMatrix = new double[energyMatrix.length][energyMatrix[0].length];
+        for (int i = 0; i < energyMatrix.length; i++) {
+            for (int j = 0; j < energyMatrix[0].length; j++) {
+                cumulatedMatrix[i][j] = energyMatrix[i][j];
             }
         }
-        path[i][j - 1] = pos + i - 1;
-        return res;
-    }
 
-    // remove horizontal seam from picture
-    public void removeHorizontalSeam(int[] seam) {
-        if (seam.length != width || !isValidSeam(seam)) {
-            throw new IllegalArgumentException();
+        for (int i = 1; i < energyMatrix.length; i++) { // 第一行不需要处理
+            for (int j = 0; j < energyMatrix[0].length; j++) { //
+                cumulatedMatrix[i][j] = verticalHelper(cumulatedMatrix, j, i) + cumulatedMatrix[i][j];
+            }
+        }//此处完成对能量积累矩阵的计算
+
+
+        int[] path = new int[height()];
+        int index = height() - 1;
+        int x = 0;
+        double min = energyMatrix[height() - 1][0];
+        for (int i = 1; i < width(); i++) {
+            if (energyMatrix[height() - 1][i] < min) {
+                min = energyMatrix[height() - 1][i];
+                x = i;
+            }
         }
-        SeamRemover.removeHorizontalSeam(picture, seam);
-    }
+        path[index] = x;
+        index--;
 
-    // remove vertical seam from picture
-    public void removeVerticalSeam(int[] seam) {
-        if (seam.length != height || !isValidSeam(seam)) {
-            throw new IllegalArgumentException();
+        for (int i = energyMatrix.length - 1; i >= 1; i--) { // 第一行不需要处理
+            x = verticalHelper1(cumulatedMatrix, x, i);
+            path[index] = x;
+            index--;
         }
-        SeamRemover.removeVerticalSeam(picture, seam);
+
+        return path;
     }
 
-    private boolean isValidSeam(int[] seam) {
-        for (int i = 0, j = 1; j < seam.length; i++, j++) {
-            if (Math.abs(seam[i] - seam[j]) > 1) {
+    public void removeHorizontalSeam(int[] seam) { // remove horizontal seam from picture
+        if(seam.length != width() || !arrayLegal(seam)) {
+            throw new java.lang.IllegalArgumentException("Passed in seam is not legal");
+        }
+        Picture seamedPic = new Picture(width(), height() - 1);
+        for (int i = 0; i < width(); i++) {
+            int k = 0;
+            for (int j = 0 ; j < height(); j++) {
+                if (j != seam[i]) {
+                    seamedPic.set(i, k, picture.get(i, j));
+                    k++;
+                }
+            }
+        }
+        this.picture = seamedPic;
+        setEnergyMatrix();
+    }
+
+    public void removeVerticalSeam(int[] seam) { // remove vertical seam from picture
+        if(seam.length != height() || !arrayLegal(seam)) {
+            throw new java.lang.IllegalArgumentException("Passed in seam is not legal");
+        }
+        Picture seamedPic = new Picture(width() - 1, height());
+        for (int j = 0; j < height(); j++) {
+            int k = 0;
+            for (int i = 0 ; i < width(); i++) {
+                if (i != seam[j]) {
+                    seamedPic.set(k, j, picture.get(i, j));
+                    k++;
+                }
+            }
+        }
+        this.picture = seamedPic;
+        setEnergyMatrix();
+    }
+
+    private int xIndexRounding(int x) {
+        if (x >= 0 && x <= width() - 1) {
+            return x;
+        } else if (x < 0) {
+            return width() + (x % width());
+        } else {
+            return x % width();
+        }
+    }
+
+    private int yIndexRounding(int y) {
+        if (y >= 0 && y <= height() - 1) {
+            return y;
+        } else if (y < 0) {
+            return height() + (y % height());
+        } else {
+            return y % height();
+        }
+    }
+
+    private void setEnergyMatrix() {
+        double[][] matrix = new double[height()][width()];
+        for (int i = 0; i < height(); i++) {
+            for (int j = 0; j < width(); j++) {
+                matrix[i][j] = energy(j, i);
+            }
+        }
+        energyMatrix = matrix;
+    }
+
+    private double verticalHelper(double[][] matrix, int x, int y) {
+        if( x > 0 && x < width() - 1) {
+            double t1 = matrix[y - 1][x - 1];
+            double t2 = matrix[y - 1][x];
+            double t3 = matrix[y - 1][x + 1];
+            return Math.min(Math.min(t1, t2), t3);
+        } else if (x == 0) {
+            double t1 = matrix[y - 1][x];
+            double t2 = matrix[y - 1][x + 1];
+            return Math.min(t1, t2);
+        } else {
+            double t1 = matrix[y - 1][x - 1];
+            double t2 = matrix[y - 1][x];
+            return Math.min(t1, t2);
+        }
+    }
+
+    private int verticalHelper1(double[][] matrix, int x, int y) {
+        if( x > 0 && x < width() - 1) {
+            double t1 = matrix[y - 1][x - 1];
+            double t2 = matrix[y - 1][x];
+            double t3 = matrix[y - 1][x + 1];
+            double min = Math.min(Math.min(t1, t2), t3);
+            if (min == t1) {
+                return x - 1;
+            }
+            if (min == t2) {
+                return x;
+            }
+            return x + 1;
+        } else if (x == 0) {
+            double t1 = matrix[y - 1][x];
+            double t2 = matrix[y - 1][x + 1];
+            double min = Math.min(t1, t2);
+            if (min == t1) {
+                return x;
+            }
+            return x + 1;
+        } else {
+            double t1 = matrix[y - 1][x - 1];
+            double t2 = matrix[y - 1][x];
+            double min = Math.min(t1, t2);
+            if (min == t1) {
+                return x - 1;
+            }
+            return x;
+
+        }
+    }
+
+    private boolean arrayLegal(int[] path) { // 检查是否连续的两个数之间相差大于1
+        if (path == null) {
+            return false;
+        }
+        for (int i = 0; i < path.length - 1; i++) {
+            if (Math.abs(path[i] - path[i + 1]) > 1) {
                 return false;
             }
         }
         return true;
+
     }
+
+
 }
