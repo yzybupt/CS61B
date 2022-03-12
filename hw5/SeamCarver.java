@@ -1,6 +1,6 @@
 import edu.princeton.cs.algs4.Picture;
 
-import java.awt.*;
+import java.awt.Color;
 
 public class SeamCarver {
     private Picture picture; // dependent
@@ -29,7 +29,7 @@ public class SeamCarver {
 
     public double energy(int x, int y) { // energy of pixel at column x and row y
         if (x < 0 || x >= width() || y < 0 || y >= height()) {
-            throw new java.lang.IndexOutOfBoundsException("The passed in argument is not within border");
+            throw new java.lang.IndexOutOfBoundsException("The passed in argument wrong");
         }
 
         Color rgbleft = picture.get(xIndexRounding(x - 1), yIndexRounding(y));
@@ -43,7 +43,7 @@ public class SeamCarver {
         int g2 = rgbright.getGreen();
         int b2 = rgbright.getBlue();
 
-        double xEnergy = (r1-r2) * (r1 - r2) + (g1-g2) * (g1 - g2) + (b1 - b2) * (b1 - b2);
+        double xEnergy = (r1 - r2) * (r1 - r2) + (g1 - g2) * (g1 - g2) + (b1 - b2) * (b1 - b2);
 
         Color rgbup = picture.get(xIndexRounding(x), yIndexRounding(y - 1));
         r1 = rgbup.getRed();
@@ -56,13 +56,13 @@ public class SeamCarver {
         g2 = rgbdown.getGreen();
         b2 = rgbdown.getBlue();
 
-        double yEnergy = (r1-r2) * (r1 - r2) + (g1-g2) * (g1 - g2) + (b1 - b2) * (b1 - b2);
+        double yEnergy = (r1 - r2) * (r1 - r2) + (g1 - g2) * (g1 - g2) + (b1 - b2) * (b1 - b2);
 
         return xEnergy + yEnergy;
     }
 
     public int[] findHorizontalSeam() {  // sequence of indices for horizontal seam
-        Picture transposePic = new Picture(height(),width());
+        Picture transposePic = new Picture(height(), width());
         transposePic.setOriginUpperLeft();
         Color[] colors = new Color[height() * width()];
         for (int i = 0; i < width(); i++) {
@@ -96,19 +96,11 @@ public class SeamCarver {
 
         for (int i = 1; i < energyMatrix.length; i++) { // 第一行不需要处理
             for (int j = 0; j < energyMatrix[0].length; j++) { //
-                cumulatedMatrix[i][j] = verticalHelper(cumulatedMatrix, j, i) + cumulatedMatrix[i][j];
+                cumulatedMatrix[i][j] = verticalHelper(cumulatedMatrix, j, i)
+                        + cumulatedMatrix[i][j];
             }
-        }//此处完成对能量积累矩阵的计算
+        } //此处完成对能量积累矩阵的计算
 
-        /*////////////////////////测试部分代码
-        for (int i = 0; i < energyMatrix.length; i++) {
-            for (int j = 0; j < energyMatrix[0].length; j++) { //
-                System.out.print(cumulatedMatrix[i][j]);
-                System.out.print(",");
-            }
-            System.out.println("");
-        }
-        ////////////////////////*/
 
 
         int[] path = new int[height()];
@@ -130,25 +122,18 @@ public class SeamCarver {
             index--;
         }
 
-        /*////////////////////////测试部分代码
-        System.out.println("");
-        for (int i = 0; i < energyMatrix.length; i++) {
-            System.out.print(path[i]);
-            System.out.print(",");
-        }
-        ////////////////////////*/
 
         return path;
     }
 
     public void removeHorizontalSeam(int[] seam) { // remove horizontal seam from picture
-        if(seam.length != width() || !arrayLegal(seam)) {
+        if (seam.length != width() || !arrayLegal(seam)) {
             throw new java.lang.IllegalArgumentException("Passed in seam is not legal");
         }
         Picture seamedPic = new Picture(width(), height() - 1);
         for (int i = 0; i < width(); i++) {
             int k = 0;
-            for (int j = 0 ; j < height(); j++) {
+            for (int j = 0; j < height(); j++) {
                 if (j != seam[i]) {
                     seamedPic.set(i, k, picture.get(i, j));
                     k++;
@@ -160,13 +145,13 @@ public class SeamCarver {
     }
 
     public void removeVerticalSeam(int[] seam) { // remove vertical seam from picture
-        if(seam.length != height() || !arrayLegal(seam)) {
+        if (seam.length != height() || !arrayLegal(seam)) {
             throw new java.lang.IllegalArgumentException("Passed in seam is not legal");
         }
         Picture seamedPic = new Picture(width() - 1, height());
         for (int j = 0; j < height(); j++) {
             int k = 0;
-            for (int i = 0 ; i < width(); i++) {
+            for (int i = 0; i < width(); i++) {
                 if (i != seam[j]) {
                     seamedPic.set(k, j, picture.get(i, j));
                     k++;
@@ -209,8 +194,8 @@ public class SeamCarver {
     }
 
     private double verticalHelper(double[][] matrix, int x, int y) {
-        if (width() >=3 ) {
-            if( x > 0 && x < width() - 1) {
+        if (width() >= 3) {
+            if (x > 0 && x < width() - 1) {
                 double t1 = matrix[y - 1][x - 1];
                 double t2 = matrix[y - 1][x];
                 double t3 = matrix[y - 1][x + 1];
@@ -232,8 +217,8 @@ public class SeamCarver {
     }
 
     private int verticalHelper1(double[][] matrix, int x, int y) {
-        if (width() >= 3){
-            if( x > 0 && x < width() - 1) {
+        if (width() >= 3) {
+            if (x > 0 && x < width() - 1) {
                 double t1 = matrix[y - 1][x - 1];
                 double t2 = matrix[y - 1][x];
                 double t3 = matrix[y - 1][x + 1];
