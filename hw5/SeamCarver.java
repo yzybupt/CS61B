@@ -100,7 +100,7 @@ public class SeamCarver {
             }
         }//此处完成对能量积累矩阵的计算
 
-        ////////////////////////测试部分代码
+        /*////////////////////////测试部分代码
         for (int i = 0; i < energyMatrix.length; i++) {
             for (int j = 0; j < energyMatrix[0].length; j++) { //
                 System.out.print(cumulatedMatrix[i][j]);
@@ -108,7 +108,7 @@ public class SeamCarver {
             }
             System.out.println("");
         }
-        ////////////////////////
+        ////////////////////////*/
 
 
         int[] path = new int[height()];
@@ -130,13 +130,13 @@ public class SeamCarver {
             index--;
         }
 
-        ////////////////////////测试部分代码
+        /*////////////////////////测试部分代码
         System.out.println("");
         for (int i = 0; i < energyMatrix.length; i++) {
             System.out.print(path[i]);
             System.out.print(",");
         }
-        ////////////////////////
+        ////////////////////////*/
 
         return path;
     }
@@ -209,52 +209,72 @@ public class SeamCarver {
     }
 
     private double verticalHelper(double[][] matrix, int x, int y) {
-        if( x > 0 && x < width() - 1) {
-            double t1 = matrix[y - 1][x - 1];
-            double t2 = matrix[y - 1][x];
-            double t3 = matrix[y - 1][x + 1];
-            return Math.min(Math.min(t1, t2), t3);
-        } else if (x == 0) {
-            double t1 = matrix[y - 1][x];
-            double t2 = matrix[y - 1][x + 1];
-            return Math.min(t1, t2);
+        if (width() >=3 ) {
+            if( x > 0 && x < width() - 1) {
+                double t1 = matrix[y - 1][x - 1];
+                double t2 = matrix[y - 1][x];
+                double t3 = matrix[y - 1][x + 1];
+                return Math.min(Math.min(t1, t2), t3);
+            } else if (x == 0) {
+                double t1 = matrix[y - 1][x];
+                double t2 = matrix[y - 1][x + 1];
+                return Math.min(t1, t2);
+            } else {
+                double t1 = matrix[y - 1][x - 1];
+                double t2 = matrix[y - 1][x];
+                return Math.min(t1, t2);
+            }
+        } else if (width() == 2) {
+            return Math.min(matrix[y - 1][0], matrix[y - 1][1]);
         } else {
-            double t1 = matrix[y - 1][x - 1];
-            double t2 = matrix[y - 1][x];
-            return Math.min(t1, t2);
+            return matrix[y - 1][0];
         }
     }
 
     private int verticalHelper1(double[][] matrix, int x, int y) {
-        if( x > 0 && x < width() - 1) {
-            double t1 = matrix[y - 1][x - 1];
-            double t2 = matrix[y - 1][x];
-            double t3 = matrix[y - 1][x + 1];
-            double min = Math.min(Math.min(t1, t2), t3);
-            if (min == t1) {
-                return x - 1;
-            }
-            if (min == t2) {
+        if (width() >= 3){
+            if( x > 0 && x < width() - 1) {
+                double t1 = matrix[y - 1][x - 1];
+                double t2 = matrix[y - 1][x];
+                double t3 = matrix[y - 1][x + 1];
+                double min = Math.min(Math.min(t1, t2), t3);
+                if (min == t1) {
+                    return x - 1;
+                }
+                if (min == t2) {
+                    return x;
+                }
+                return x + 1;
+            } else if (x == 0) {
+                double t1 = matrix[y - 1][x];
+                double t2 = matrix[y - 1][x + 1];
+                double min = Math.min(t1, t2);
+                if (min == t1) {
+                    return x;
+                }
+                return x + 1;
+            } else {
+                double t1 = matrix[y - 1][x - 1];
+                double t2 = matrix[y - 1][x];
+                double min = Math.min(t1, t2);
+                if (min == t1) {
+                    return x - 1;
+                }
                 return x;
-            }
-            return x + 1;
-        } else if (x == 0) {
-            double t1 = matrix[y - 1][x];
-            double t2 = matrix[y - 1][x + 1];
-            double min = Math.min(t1, t2);
-            if (min == t1) {
-                return x;
-            }
-            return x + 1;
-        } else {
-            double t1 = matrix[y - 1][x - 1];
-            double t2 = matrix[y - 1][x];
-            double min = Math.min(t1, t2);
-            if (min == t1) {
-                return x - 1;
-            }
-            return x;
 
+            }
+        } else if (width() == 2) {
+            double t1 = matrix[y - 1][0];
+            double t2 = matrix[y - 1][1];
+            double min = Math.min(t1, t2);
+            if (min == t1) {
+                return 0;
+            } else {
+                return 1;
+            }
+
+        } else {
+            return 0;
         }
     }
 
