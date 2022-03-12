@@ -13,7 +13,7 @@ public class SeamCarver {
 
 
     public Picture picture() { // current picture
-        return this.picture;
+        return new Picture(this.picture);
     }
 
 
@@ -100,25 +100,43 @@ public class SeamCarver {
             }
         }//此处完成对能量积累矩阵的计算
 
+        ////////////////////////测试部分代码
+        for (int i = 0; i < energyMatrix.length; i++) {
+            for (int j = 0; j < energyMatrix[0].length; j++) { //
+                System.out.print(cumulatedMatrix[i][j]);
+                System.out.print(",");
+            }
+            System.out.println("");
+        }
+        ////////////////////////
+
 
         int[] path = new int[height()];
         int index = height() - 1;
         int x = 0;
-        double min = energyMatrix[height() - 1][0];
+        double min = cumulatedMatrix[height() - 1][0];
         for (int i = 1; i < width(); i++) {
-            if (energyMatrix[height() - 1][i] < min) {
-                min = energyMatrix[height() - 1][i];
+            if (cumulatedMatrix[height() - 1][i] < min) {
+                min = cumulatedMatrix[height() - 1][i];
                 x = i;
             }
         }
         path[index] = x;
         index--;
 
-        for (int i = energyMatrix.length - 1; i >= 1; i--) { // 第一行不需要处理
+        for (int i = cumulatedMatrix.length - 1; i >= 1; i--) { // 第一行不需要处理
             x = verticalHelper1(cumulatedMatrix, x, i);
             path[index] = x;
             index--;
         }
+
+        ////////////////////////测试部分代码
+        System.out.println("");
+        for (int i = 0; i < energyMatrix.length; i++) {
+            System.out.print(path[i]);
+            System.out.print(",");
+        }
+        ////////////////////////
 
         return path;
     }

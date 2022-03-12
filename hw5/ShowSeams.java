@@ -41,8 +41,8 @@ public class ShowSeams {
         StdOut.printf("Displaying horizontal seam calculated.\n");
         showHorizontalSeam(sc);
 
-        StdOut.printf("Displaying vertical seam calculated.\n");
-        showVerticalSeam(sc);
+        /*StdOut.printf("Displaying vertical seam calculated.\n");
+        showVerticalSeam(sc);*/
 
     }
 
